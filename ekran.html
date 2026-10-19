@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мой план · «Подбор вуза»</title>
+<meta name="description" content="Один экран: предметы, направления, которые они открывают, и задачи на неделю.">
+<style>
+:root{
+  --bg:#ffffff; --surface:#f7f7f8; --surface-2:#f0f0f2;
+  --text:#16161a; --text-2:#55555f; --text-3:#8a8a95;
+  --line:#e3e3e7; --accent:#6245c9;
+  --ok:#1a7f4b; --warn:#9a6207; --bad:#b3261e;
+  --ok-bg:#eaf6ef; --warn-bg:#fcf3e3; --bad-bg:#fbeceb; --info-bg:#eceaf8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#131316; --surface:#1a1a1f; --surface-2:#202027;
+    --text:#ececf0; --text-2:#a8a8b3; --text-3:#74747f;
+    --line:#2b2b33; --accent:#a493f0;
+    --ok:#5ec98b; --warn:#e0b05a; --bad:#ec8a84;
+    --ok-bg:#14261c; --warn-bg:#2a2113; --bad-bg:#2b1715; --info-bg:#1d1a2e;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif}
+button,input{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.phone{max-width:390px;margin:0 auto;min-height:100vh;padding-bottom:28px}
+.plan{position:sticky;top:0;z-index:2;background:var(--bg);padding:10px 16px 8px;border-bottom:1px solid var(--line)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.who{font-size:13px;color:var(--text-3);margin:0}
+.who b{color:var(--text);font-weight:650}
+.save{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;cursor:pointer}
+.save:disabled{opacity:.45;cursor:default}
+.slots{display:flex;gap:8px;margin-top:10px}
+.slot{flex:1;min-width:0;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px;cursor:pointer}
+.slot.lock{cursor:default}
+.slot .n{display:block;font-size:13px;font-weight:650;line-height:1.25}
+.slot .s{display:block;font-size:12px;color:var(--text-3);margin-top:2px}
+.slot.empty{border-style:dashed;color:var(--text-2)}
+.actions{display:flex;gap:8px;margin-top:8px}
+.linkish{border:0;background:transparent;padding:0;color:var(--accent);cursor:pointer;font-size:13px}
+.linkish:disabled{color:var(--text-3);cursor:default}
+.hint{margin:6px 0 0;font-size:13px;color:var(--text-2)}
+.chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:transparent;border-radius:999px;padding:5px 10px;font-size:13px;cursor:pointer}
+.chip.on{border-color:var(--accent);background:var(--info-bg)}
+.count{margin:12px 16px 0;font-size:15px;font-weight:650}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 16px 4px}
+.tile{position:relative;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px;cursor:pointer}
+.tile.open{background:var(--info-bg);border-color:var(--accent)}
+.tile.dim{opacity:.55}
+.tile .title{font-size:15px;font-weight:650;padding-right:22px}
+.tile .sub{display:block;font-size:12px;color:var(--text-3);font-weight:400}
+.star{position:absolute;top:6px;right:6px;border:0;background:transparent;color:var(--text-3);font-size:16px;line-height:1;padding:2px;cursor:pointer}
+.star.on{color:var(--accent)}
+.pips{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 4px}
+.pip{font-size:12px;line-height:1.2;border:1px solid var(--line);border-radius:999px;padding:2px 6px;color:var(--text-3)}
+.pip.on{border-color:var(--accent);color:var(--text);background:var(--bg)}
+.why{margin:0;font-size:13px;line-height:1.3;color:var(--text-2)}
+.tile.open .why{color:var(--ok)}
+.next{padding:14px 0 0}
+.next h2{font-size:18px;margin:0 16px 8px;font-weight:650}
+.scroller{display:flex;gap:8px;overflow-x:auto;padding:0 16px 8px;scroll-snap-type:x mandatory}
+.task{flex:0 0 78%;scroll-snap-align:start;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px;cursor:pointer}
+.task .tag{display:block;font-size:12px;color:var(--accent);margin-bottom:4px}
+.task b{display:block;font-size:15px;margin-bottom:4px}
+.task p{margin:0;font-size:13px;color:var(--text-2)}
+.views{display:flex;gap:4px;margin:10px 16px 0;padding:3px;background:var(--surface);border:1px solid var(--line);border-radius:999px}
+.views button{flex:1;border:0;background:transparent;border-radius:999px;padding:6px 8px;font-size:14px;color:var(--text-2);cursor:pointer}
+.views button.on{background:var(--bg);color:var(--text);font-weight:650;box-shadow:0 0 0 1px var(--line)}
+.all{padding:14px 16px 0}
+.all h2{font-size:18px;margin:0 0 4px;font-weight:650}
+.all .lead{margin:0 0 12px;font-size:13px;color:var(--text-2)}
+.tl{list-style:none;margin:0;padding:0 0 0 18px;border-left:2px solid var(--line)}
+.stage{position:relative;margin:0 0 10px}
+.stage::before{content:"";position:absolute;left:-26px;top:14px;width:10px;height:10px;border-radius:50%;background:var(--bg);border:2px solid var(--line)}
+.stage.now::before{background:var(--accent);border-color:var(--accent)}
+.stage.done::before{background:var(--text-3);border-color:var(--text-3)}
+.stagebtn{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;cursor:pointer}
+.stage.now .stagebtn{border-color:var(--accent);background:var(--info-bg)}
+.stage.done .stagebtn{opacity:.7}
+.stagebtn .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.stagebtn b{font-size:15px}
+.stagebtn .when{font-size:12px;color:var(--text-3);white-space:nowrap}
+.stagebtn .state{display:block;font-size:12px;color:var(--accent);margin-top:2px}
+.stage.done .state{color:var(--text-3)}
+.stagebtn .sum{display:block;font-size:13px;color:var(--text-2);margin-top:4px}
+.items{list-style:none;margin:8px 0 0;padding:0;font-size:13px;color:var(--text-2)}
+.items li{padding:6px 0;border-top:1px solid var(--line)}
+.items li b{color:var(--text);font-weight:600}
+.gate{margin:6px 0 0;font-size:12px;color:var(--warn)}
+.go{margin-top:8px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13px}
+.note{margin:0 16px;font-size:13px;color:var(--text-3)}
+.foot{margin:16px 16px 0;font-size:12px;color:var(--text-3)}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10;display:none}
+.overlay.on{display:block}
+.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(390px,100%);max-height:72vh;overflow:auto;background:var(--bg);border:1px solid var(--line);border-radius:16px 16px 0 0;z-index:11;padding:8px 16px 24px;display:none}
+.sheet.on{display:block}
+.handle{width:36px;height:4px;border-radius:99px;background:var(--line);margin:4px auto 12px}
+.sheet h3{margin:0 0 6px;font-size:18px}
+.sheet p{margin:0 0 10px;font-size:14px;color:var(--text-2)}
+.opt{display:block;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;margin:0 0 8px;cursor:pointer}
+.opt.on{border-color:var(--accent);background:var(--info-bg)}
+.opt b{display:block;font-size:15px}
+.opt span{display:block;font-size:13px;color:var(--text-2);margin-top:2px}
+.sheet .close{margin-top:4px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header class="plan" id="plan"></header>
+  <div class="views" id="views"></div>
+  <section class="all" id="all" hidden></section>
+  <p class="count" id="count"></p>
+  <div class="grid" id="grid"></div>
+  <section class="next" id="next"></section>
+  <p class="foot" id="foot"></p>
+</div>
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet"></div>
+<script>
+var SUBJECTS = {
+  rus: {name:"Русский", short:"рус", gender:"m", dat:"русскому"},
+  math:{name:"Математика", short:"мат", gender:"f", dat:"математике"},
+  inf: {name:"Информатика", short:"инф", gender:"f", dat:"информатике"},
+  phys:{name:"Физика", short:"физ", gender:"f", dat:"физике"},
+  chem:{name:"Химия", short:"хим", gender:"f", dat:"химии"},
+  bio: {name:"Биология", short:"био", gender:"f", dat:"биологии"},
+  soc: {name:"Обществознание", short:"общ", gender:"n", dat:"обществознанию"},
+  hist:{name:"История", short:"ист", gender:"f", dat:"истории"},
+  eng: {name:"Английский", short:"англ", gender:"m", dat:"английскому"},
+  lit: {name:"Литература", short:"лит", gender:"f", dat:"литературе"},
+  geo: {name:"География", short:"гео", gender:"f", dat:"географии"}
+};
+var PICK = ["math","inf","phys","chem","bio","soc","hist","eng","lit","geo"];
+var SCORES = {
+  rus: {now:78, goal:82, prev:82},
+  math:{now:72, goal:80, prev:76}
+};
+var DIRS = [
+  {id:"it", title:"IT", fixed:["math"], fan:["phys","inf"],
+    stories:["День разработчика: ошибка в данных, половина строк не сходится.","Стенд не запускается. До конца смены ищут, какой датчик врёт."],
+    catalog:["Чаще: русский, профильная математика, физика или информатика.","Вуз может поставить вторым испытанием математику или информатику. Техническая тройка не открывает компьютерную лингвистику."]},
+  {id:"engn", title:"Инженерия", fixed:["math"], fan:["phys","inf","chem"],
+    stories:["Смена на производстве: чертёж не сходится с деталью.","Лаборатория: опыт не повторяется, ищут, что изменилось."],
+    catalog:["Частый набор: русский, математика, физика или информатика.","Встречается и русский + физика, а третьим математика, химия или информатика."]},
+  {id:"econ", title:"Экономика", sub:"и управление", fixed:["math"], fan:["inf","hist","soc","eng","geo"],
+    stories:["Разбор отчёта: цифры сходятся, а вывод заказчика нет.","Смена в магазине: считают, почему полка пустая к вечеру."],
+    catalog:["Математика на экономике обязательна. Третьим вуз выбирает из своего списка.","География есть не у всех программ управления. Смотреть код специальности, не название."]},
+  {id:"law", title:"Право", fixed:["soc"], fan:["hist","inf","eng","math"],
+    stories:["Разбор кейса: два документа говорят разное, надо выбрать норму.","Приём: человеку объясняют, какой бумаги не хватает."],
+    catalog:["Обществознание обязательно. Третьим бывают история, информатика, иностранный или математика.","Конкретный вуз не обязан принимать все четыре."]},
+  {id:"med", title:"Медицина", sub:"и фармация", fixed:["bio","chem"], fan:[],
+    stories:["Практика: надо остаться в кабинете, когда пациенту плохо.","Лаборатория: подпись на пробирке важнее скорости."],
+    catalog:["Лечебное дело, педиатрия, стоматология, фармация, сестринское дело: русский, биология и химия. Оба предмета фиксированы.","Выбора третьего экзамена нет."]},
+  {id:"psy", title:"Психология", fixed:["bio"], fan:["math","soc","chem"],
+    stories:["Занятие: класс не слушает, надо удержать сорок минут.","Разбор анкет: ответы есть, а что человек имел в виду, не сказано."],
+    catalog:["Биология обычно второе испытание. Третьим бывают математика или обществознание.","У клинической психологии третьим ещё бывает химия. Не каждый вуз принимает все три."]},
+  {id:"ling", title:"Лингвистика", fixed:[], fan:["eng","lit"],
+    stories:["Корпус текстов: ищут, где модель путает смысл.","Перевод: фраза верная по словам и ложная по делу."],
+    catalog:["Части программ нужен иностранный или литература как основной предмет.","Третьим бывают обществознание, история, информатика или математика. Одна IT-тройка это направление не покрывает."]},
+  {id:"ped", title:"Педагогика", depends:true, fixed:[], fan:["math","soc","inf","eng","lit"],
+    stories:["Урок: объясняешь одно и то же третий раз, другими словами.","Проверка тетрадей: ошибка одна и та же у половины класса."],
+    catalog:["Код 44.03.01 не задаёт набор. Он зависит от профиля: математика, иностранный, дошкольное.","На многих профилях вторым испытанием может быть и предмет профиля, и обществознание."]},
+  {id:"chembio", title:"Химия и биология", pair:true, fixed:[], fan:[],
+    stories:["Лаборатория: опыт пошёл не так, записывают, что изменилось.","Поле: образцы подписаны, иначе результат нельзя сдать."],
+    catalog:["Встречаются пары: химия плюс математика или биология, биология плюс математика или химия.","Это не лечебное дело: там биология и химия нужны обе."]},
+  {id:"art", title:"Творческие", sub:"и дизайн", fixed:["lit"], fan:[], dvi:true,
+    stories:["Редактура: текст сокращают вдвое, смысл должен остаться.","Просмотр: работу оценивают люди, не балл ЕГЭ."],
+    catalog:["Часто два школьных предмета плюс испытание вуза: рисунок, собеседование, творческий конкурс.","Агрегатор показывает школьные предметы и молчит про испытание. Его проверяют на сайте вуза."]}
+];
+var EXTRAS = [
+  {id:"benefit", title:"Льготы", items:[
+    {id:"none", title:"Категории нет", text:"Квота баллами не набирается. Без категории особая и отдельная квоты закрыты."},
+    {id:"quota", title:"Есть льготная категория", text:"Это другой конкурс, не прибавка к сумме. Право подтверждают в вузе."}
+  ]},
+  {id:"olymp", title:"Олимпиады", items:[
+    {id:"region", title:"Призёр региона ВсОШ", text:"Где-то даёт баллы, где-то ничего. Конкурс снимает диплом заключительного этапа, не региона."},
+    {id:"final", title:"Диплом заключительного этапа", text:"Может снять конкурс. На каких программах, написано в правилах вуза."}
+  ]},
+  {id:"achieve", title:"Достижения", items:[
+    {id:"gto", title:"ГТО, золотой знак", text:"Прибавляет баллы. Сколько, решает вуз, общей нормы нет."},
+    {id:"vol", title:"Волонтёрство, 80 из 100 часов", text:"Где зачтут, конкурс не снимает. Части вузов нужно 100 часов."},
+    {id:"medal", title:"Аттестат с отличием", text:"Его ещё нет. В сумму не входит, пока аттестата нет."}
+  ]},
+  {id:"other", title:"Другое", items:[
+    {id:"dvi", title:"Испытание вуза", text:"Рисунок, собеседование, творческий конкурс. Это не школьный ЕГЭ."},
+    {id:"target", title:"Целевой договор", text:"Отдельный конкурс. Баллы ЕГЭ его не заменяют."}
+  ]}
+];
+
+var slots = ["rus","math",null,null];
+var starred = {};
+var picked = {};
+var mode = "draft";
+var savedKey = "";
+var hint = "";
+
+function t(s){
+  return String(s).replace(/ — /g,"\u00A0— ").replace(/(^|[\s(«])([АаВвИиКкОоСсУуЯя]) /g,"$1$2\u00A0");
+}
+function low(id){ return SUBJECTS[id].name.charAt(0).toLowerCase()+SUBJECTS[id].name.slice(1); }
+function compact(){
+  var rest = slots.slice(1).filter(Boolean);
+  slots = ["rus", rest[0]||null, rest[1]||null, rest[2]||null];
+}
+function setList(){ return slots.filter(Boolean); }
+function has(set,id){ return set.indexOf(id)>=0; }
+function joinOr(ids){
+  var names = ids.map(low);
+  if(names.length<3) return names.join(" или ");
+  return names.slice(0,-1).join(", ")+" или "+names[names.length-1];
+}
+function needOne(id){
+  var g = SUBJECTS[id].gender;
+  var v = g==="m"?"нужен":g==="n"?"нужно":"нужна";
+  return v+" "+low(id);
+}
+function needMany(parts){
+  if(parts.length<=1) return parts[0]||"";
+  return "нужны "+parts.slice(0,-1).join(", ")+" и "+parts[parts.length-1];
+}
+function holeText(dir, miss, fanOk){
+  if(dir.depends && !fanOk && !miss.length) return "нужен предмет профиля";
+  if(!miss.length && !fanOk){
+    if(dir.fan.length>3) return "нужен предмет на выбор";
+    if(dir.fan.length===1) return needOne(dir.fan[0]);
+    return "нужны "+joinOr(dir.fan);
+  }
+  if(miss.length===1 && fanOk) return needOne(miss[0]);
+  var parts = miss.map(low);
+  if(!fanOk) parts.push(dir.fan.length>3 ? "предмет на выбор" : joinOr(dir.fan));
+  return needMany(parts);
+}
+function cover(dir, set){
+  if(dir.pair) return coverPair(set);
+  var miss = dir.fixed.filter(function(id){ return !has(set,id); });
+  var fanOk = !dir.fan.length || dir.fan.some(function(id){ return has(set,id); });
+  var holes = miss.length + (fanOk?0:1);
+  if(holes===0){
+    var text = dir.dvi ? "открыто, ещё испытание вуза" : (dir.depends ? "открыто, зависит от программы" : "открыто");
+    return {kind:"open", text:text};
+  }
+  return {kind: holes===1?"almost":"dim", text:holeText(dir, miss, fanOk)};
+}
+function coverPair(set){
+  var c = has(set,"chem"), b = has(set,"bio"), m = has(set,"math");
+  if((c&&m)||(c&&b)||(b&&m)) return {kind:"open", text:"открыто"};
+  var n = (c?1:0)+(b?1:0)+(m?1:0);
+  if(n===1){
+    if(m) return {kind:"almost", text:"нужна химия или биология"};
+    if(c) return {kind:"almost", text:"нужна математика или биология"};
+    return {kind:"almost", text:"нужна математика или химия"};
+  }
+  return {kind:"dim", text:"нужны химия и биология"};
+}
+function cells(dir, set){
+  var out = [{label:"рус", on:true}];
+  dir.fixed.forEach(function(id){ out.push({label:SUBJECTS[id].short, on:has(set,id)}); });
+  if(dir.fan.length){
+    var got = null;
+    dir.fan.forEach(function(id){ if(!got && has(set,id)) got = id; });
+    out.push({label: got? SUBJECTS[got].short : (dir.fan.length>2?"на выбор":dir.fan.map(function(id){return SUBJECTS[id].short;}).join("/")), on:!!got});
+  }
+  if(dir.dvi) out.push({label:"ДВИ", on:false});
+  if(dir.pair){
+    out = [
+      {label:"рус", on:true},
+      {label:"хим", on:has(set,"chem")},
+      {label:"био", on:has(set,"bio")},
+      {label:"мат", on:has(set,"math")}
+    ];
+  }
+  return out;
+}
+function counts(){
+  var set = setList(), open = 0, almost = 0;
+  DIRS.forEach(function(d){
+    var k = cover(d, set).kind;
+    if(k==="open") open++;
+    else if(k==="almost") almost++;
+  });
+  return {open:open, almost:almost};
+}
+function starCount(){ return Object.keys(starred).filter(function(id){ return starred[id]; }).length; }
+function extraOn(group){
+  return EXTRAS.filter(function(g){ return g.id===group; })[0].items.some(function(it){ return picked[group+":"+it.id]; });
+}
+function firstEmpty(){
+  for(var i=1;i<slots.length;i++) if(!slots[i]) return i;
+  return -1;
+}
+function improveScore(id){
+  var base = setList();
+  var next = base.concat([id]);
+  var score = 0;
+  DIRS.forEach(function(d){
+    if(!starred[d.id]) return;
+    var a = cover(d, base).kind, b = cover(d, next).kind;
+    if(a!=="open" && b==="open") score += 2;
+    else if(a==="dim" && b==="almost") score += 1;
+  });
+  return score;
+}
+function bestFromStars(){
+  var best = null, bestScore = 0;
+  PICK.forEach(function(id){
+    if(has(setList(), id)) return;
+    var s = improveScore(id);
+    if(s>bestScore){ bestScore = s; best = id; }
+  });
+  return bestScore? best : null;
+}
+function putSubject(id){
+  if(mode==="locked" || has(setList(), id)) return;
+  var i = firstEmpty();
+  if(i<0) slots[slots.length-1] = id;
+  else slots[i] = id;
+}
+function decideTasks(){
+  var tasks = [], set = setList();
+  if(!slots[2]) tasks.push({kind:"decide", title:"Выбрать третий предмет", text:"Пока два экзамена. Третий зажигает часть направлений.", act:"pick", slot:2});
+  else if(!slots[3]) tasks.push({kind:"decide", title:"Посмотреть четвёртый предмет", text:"Он открывает программы с другим третьим экзаменом. Каждая программа считает только свои.", act:"pick", slot:3});
+  if(starCount()<2) tasks.push({kind:"decide", title:"Отметить направления", text:"Звёздочка значит «мне интересно». Потом из отмеченных можно подставить предмет.", act:"none"});
+  var other = null;
+  DIRS.forEach(function(d){
+    if(other || starred[d.id]) return;
+    var st = cover(d, set);
+    if(st.kind!=="open") other = {dir:d, st:st};
+  });
+  if(other) tasks.push({kind:"decide", title:"Посмотреть сториз другой категории", text:other.dir.title+": "+other.st.text+".", act:"dir", id:other.dir.id});
+  return tasks.slice(0,3);
+}
+function reachTasks(){
+  if(mode==="draft") return [];
+  var tasks = [];
+  setList().forEach(function(id){
+    var sc = SCORES[id];
+    if(!sc){
+      tasks.push({kind:"reach", title:"Сдать пробник", text:"По "+SUBJECTS[id].dat+" замера нет. Без него цель не с чем сравнить.", act:"none"});
+    } else if(sc.goal>sc.now){
+      var drop = sc.prev>sc.now ? " Замер упал на "+(sc.prev-sc.now)+"." : "";
+      tasks.push({kind:"reach", title:"Позаниматься: "+low(id), text:"Сейчас "+sc.now+", цель "+sc.goal+"."+drop, act:"none"});
+    }
+  });
+  return tasks;
+}
+function el(tag, cls, text){
+  var n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(text!=null) n.textContent = text;
+  return n;
+}
+function closeSheet(){
+  document.getElementById("overlay").className = "overlay";
+  document.getElementById("sheet").className = "sheet";
+  document.getElementById("sheet").innerHTML = "";
+}
+function openSheet(build){
+  var sheet = document.getElementById("sheet");
+  sheet.innerHTML = "";
+  sheet.appendChild(el("div","handle"));
+  build(sheet);
+  var close = el("button","save close","Закрыть");
+  close.type = "button";
+  close.addEventListener("click", closeSheet);
+  sheet.appendChild(close);
+  document.getElementById("overlay").className = "overlay on";
+  sheet.className = "sheet on";
+}
+function openPicker(index){
+  if(mode==="locked" || index===0) return;
+  openSheet(function(sheet){
+    sheet.appendChild(el("h3",null, slots[index] ? SUBJECTS[slots[index]].name : "Предмет"));
+    sheet.appendChild(el("p",null, t("Русский уже в наборе и обязателен. Один предмет нельзя засчитать дважды.")));
+    PICK.forEach(function(id){
+      if(has(setList(), id) && slots[index]!==id) return;
+      var b = el("button","opt"+(slots[index]===id?" on":""));
+      b.type = "button";
+      b.appendChild(el("b",null, SUBJECTS[id].name));
+      var sc = SCORES[id];
+      b.appendChild(el("span",null, sc ? "замер "+sc.now+", цель "+sc.goal : "замера нет"));
+      b.addEventListener("click", function(){ slots[index] = id; closeSheet(); render(); });
+      sheet.appendChild(b);
+    });
+    if(slots[index]){
+      var rm = el("button","opt","Убрать из набора");
+      rm.type = "button";
+      rm.addEventListener("click", function(){ slots[index] = null; closeSheet(); render(); });
+      sheet.appendChild(rm);
+    }
+  });
+}
+function openExtra(group){
+  var g = EXTRAS.filter(function(x){ return x.id===group; })[0];
+  openSheet(function(sheet){
+    sheet.appendChild(el("h3",null, g.title));
+    sheet.appendChild(el("p",null, t(group==="benefit" ? "Льгота не прибавляет баллы. Она открывает другую квоту." : "Эффект разный у разных вузов. Здесь пример, не правила приёма.")));
+    g.items.forEach(function(it){
+      var key = group+":"+it.id;
+      var b = el("button","opt"+(picked[key]?" on":""));
+      b.type = "button";
+      b.appendChild(el("b",null, it.title));
+      b.appendChild(el("span",null, t(it.text)));
+      b.addEventListener("click", function(){ picked[key] = !picked[key]; openExtra(group); });
+      sheet.appendChild(b);
+    });
+  });
+}
+function openDir(id){
+  var d = DIRS.filter(function(x){ return x.id===id; })[0];
+  var st = cover(d, setList());
+  openSheet(function(sheet){
+    sheet.appendChild(el("h3",null, d.title));
+    sheet.appendChild(el("p",null, t(st.text.charAt(0).toUpperCase()+st.text.slice(1)+".")));
+    d.catalog.forEach(function(line){ sheet.appendChild(el("p",null, t(line))); });
+    d.stories.forEach(function(line){
+      var b = el("button","opt");
+      b.type = "button";
+      b.appendChild(el("b",null, "Сториз"));
+      b.appendChild(el("span",null, t(line)));
+      sheet.appendChild(b);
+    });
+    var star = el("button","opt", starred[id] ? "Убрать отметку" : "Отметить направление");
+    star.type = "button";
+    star.addEventListener("click", function(){ starred[id] = !starred[id]; openDir(id); render(); });
+    sheet.appendChild(star);
+  });
+}
+function renderPlan(){
+  var root = document.getElementById("plan");
+  root.innerHTML = "";
+  var top = el("div","row");
+  var who = el("p","who");
+  who.appendChild(el("b",null, "Мой план"));
+  who.appendChild(document.createTextNode(mode==="locked" ? " · после 1 февраля" : mode==="saved" ? " · сохранён" : " · черновик"));
+  top.appendChild(who);
+  var save = el("button","save", mode==="draft" ? "Сохранить" : mode==="saved" ? "После 1 февраля" : "Вернуть правку");
+  save.type = "button";
+  save.addEventListener("click", function(){
+    if(mode==="draft"){ mode = "saved"; savedKey = setList().join(","); }
+    else if(mode==="saved") mode = "locked";
+    else mode = "saved";
+    render();
+  });
+  top.appendChild(save);
+  root.appendChild(top);
+  var slotsRow = el("div","slots");
+  var shown = slots[2] ? 4 : 3;
+  for(var i=0;i<shown;i++){
+    if(i===3 && !slots[3]){
+      var plus = el("button","slot empty");
+      plus.type = "button";
+      plus.disabled = mode==="locked";
+      plus.appendChild(el("span","n","+ ещё"));
+      plus.appendChild(el("span","s","четвёртый"));
+      plus.addEventListener("click", function(){ openPicker(3); });
+      slotsRow.appendChild(plus);
+      break;
+    }
+    var id = slots[i];
+    var btn = el("button", "slot"+(i===0?" lock":"")+(id?"":" empty"));
+    btn.type = "button";
+    btn.disabled = mode==="locked" || i===0;
+    if(id){
+      var brief = {math:"Матем.", inf:"Информ.", soc:"Общество", eng:"Англ. яз.", lit:"Литерат.", geo:"Географ."};
+      btn.appendChild(el("span","n", shown>3 && brief[id] ? brief[id] : SUBJECTS[id].name));
+      var sc = SCORES[id];
+      btn.appendChild(el("span","s", sc ? "цель "+sc.goal : (i===0?"обязателен":"нет балла")));
+      if(sc) btn.appendChild(el("span","s", "сейчас "+sc.now));
+    } else {
+      btn.appendChild(el("span","n","+ предмет"));
+      btn.appendChild(el("span","s", i===1 ? "второй экзамен" : "третий экзамен"));
+    }
+    btn.addEventListener("click", function(index){ return function(){ openPicker(index); }; }(i));
+    slotsRow.appendChild(btn);
+  }
+  root.appendChild(slotsRow);
+  var actions = el("div","actions");
+  var rnd = el("button","linkish","Случайный");
+  rnd.type = "button";
+  rnd.disabled = mode==="locked";
+  rnd.addEventListener("click", function(){
+    var pool = PICK.filter(function(id){ return !has(setList(), id); });
+    if(!pool.length) return;
+    var id = pool[Math.floor(Math.random()*pool.length)];
+    putSubject(id);
+    hint = t("Подставлен "+low(id)+" для «а что если». Это не совет.");
+    render();
+  });
+  var from = el("button","linkish","Из отмеченных");
+  from.type = "button";
+  from.disabled = mode==="locked";
+  from.addEventListener("click", function(){
+    if(starCount()===0){ hint = t("Сначала отметь направления звёздочкой."); render(); return; }
+    var id = bestFromStars();
+    if(!id){ hint = t("Отмеченные уже открыты этим набором."); render(); return; }
+    putSubject(id);
+    hint = t(SUBJECTS[id].name+" зажигает больше отмеченных, чем другие предметы.");
+    render();
+  });
+  actions.appendChild(rnd);
+  actions.appendChild(from);
+  root.appendChild(actions);
+  if(hint) root.appendChild(el("p","hint", hint));
+  if(mode==="saved" && savedKey && savedKey!==setList().join(",")){
+    root.appendChild(el("p","hint", t("После сохранения набор изменился.")));
+  }
+  if(mode==="locked") root.appendChild(el("p","hint", t("Предметы закрыты 1 февраля. Допы и отметки ещё можно менять.")));
+  var chips = el("div","chips");
+  EXTRAS.forEach(function(g){
+    var c = el("button","chip"+(extraOn(g.id)?" on":""), g.title);
+    c.type = "button";
+    c.addEventListener("click", function(){ openExtra(g.id); });
+    chips.appendChild(c);
+  });
+  root.appendChild(chips);
+}
+function renderGrid(){
+  var set = setList();
+  var c = counts();
+  document.getElementById("count").textContent = t("Открыто "+c.open+" из "+DIRS.length+". Ещё "+c.almost+" почти.");
+  var grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  DIRS.forEach(function(d){
+    var st = cover(d, set);
+    var tile = el("div","tile "+st.kind);
+    var star = el("button","star"+(starred[d.id]?" on":""), starred[d.id]?"★":"☆");
+    star.type = "button";
+    star.setAttribute("aria-label", starred[d.id] ? "Убрать отметку" : "Отметить");
+    star.addEventListener("click", function(ev){ ev.stopPropagation(); starred[d.id] = !starred[d.id]; render(); });
+    tile.appendChild(star);
+    var title = el("div","title", d.title);
+    if(d.sub) title.appendChild(el("span","sub", d.sub));
+    tile.appendChild(title);
+    var pips = el("div","pips");
+    cells(d, set).forEach(function(cell){
+      pips.appendChild(el("span","pip"+(cell.on?" on":""), cell.label));
+    });
+    tile.appendChild(pips);
+    tile.appendChild(el("p","why", t(st.text)));
+    tile.addEventListener("click", function(){ openDir(d.id); });
+    grid.appendChild(tile);
+  });
+}
+function renderTasks(){
+  var box = document.getElementById("next");
+  box.innerHTML = "";
+  box.appendChild(el("h2",null,"Что дальше"));
+  var tasks = decideTasks().concat(reachTasks());
+  var scroller = el("div","scroller");
+  tasks.forEach(function(task){
+    var card = el("button","task");
+    card.type = "button";
+    card.appendChild(el("span","tag", task.kind==="reach"?"Дотянуть":"Решить"));
+    card.appendChild(el("b",null, task.title));
+    card.appendChild(el("p",null, t(task.text)));
+    card.addEventListener("click", function(){
+      if(task.act==="pick") openPicker(task.slot);
+      else if(task.act==="dir") openDir(task.id);
+    });
+    scroller.appendChild(card);
+  });
+  box.appendChild(scroller);
+  if(mode==="draft") box.appendChild(el("p","note", t("Задачи «дотянуть» появятся, когда план сохранён.")));
+}
+
+var view = "now";
+var openStage = {};
+function pickedTitles(){
+  var out = [];
+  EXTRAS.forEach(function(g){ g.items.forEach(function(it){ if(picked[g.id+":"+it.id]) out.push(it.title); }); });
+  return out;
+}
+function starTitles(){
+  return DIRS.filter(function(d){ return starred[d.id]; }).map(function(d){ return d.title; });
+}
+function goalLines(){
+  return setList().map(function(id){
+    var sc = SCORES[id];
+    if(!sc) return "<b>"+SUBJECTS[id].name+"</b>: балла пока нет, нужен пробник";
+    var gap = sc.goal-sc.now;
+    return "<b>"+SUBJECTS[id].name+"</b>: сейчас "+sc.now+", цель "+sc.goal+(gap>0 ? ", не хватает "+gap : ", цель достигнута");
+  });
+}
+function stages(){
+  var set = setList(), c = counts();
+  var locked = mode==="locked";
+  var subjLine = set.map(function(id){ return low(id); }).join(", ");
+  var stars = starTitles(), extras = pickedTitles();
+  var subjItems = decideTasks().map(function(x){ return "<b>"+x.title+"</b>. "+x.text; });
+  if(mode==="draft") subjItems.push("<b>Сохранить план</b>: черновик станет текущим планом");
+  if(!subjItems.length) subjItems.push("Набор собран");
+  return [
+    {id:"profile", title:"Профиль и ОГЭ", when:"весна 9 класса", state:"done",
+     sum:"Часть предметов пришла отсюда и заново не выбирается.", items:[], gate:""},
+    {id:"subjects", title:"Предметы ЕГЭ", when:"до 1 февраля", state: locked?"done":"now",
+     sum:"Набор: "+subjLine+". Открыто "+c.open+" из "+DIRS.length+", ещё "+c.almost+" почти.",
+     items:locked ? ["Набор закрыт 1 февраля"] : subjItems,
+     gate:locked ? "" : "После 1 февраля состав набора закрывается."},
+    {id:"exam", title:"Сдать ЕГЭ", when:"май–июнь", state: locked?"now":"next",
+     sum:"Цели по баллам и разрыв до них.", items:goalLines().concat(["<b>Пробники</b>: замер приходит из пробника или тренажёра"]),
+     gate:"Даты экзаменов задаёт официальное расписание."},
+    {id:"apply", title:"Подача", when:"июнь–июль", state:"next",
+     sum: stars.length ? "Отмечено направлений: "+stars.length+"." : "Направления пока не отмечены.",
+     items:[
+       "<b>Направления</b>: "+(stars.length ? stars.join(", ") : "отметьте звёздочкой на экране «Сейчас»"),
+       "<b>Допы к заявлению</b>: "+(extras.length ? extras.join(", ") : "пока ничего не выбрано"),
+       "<b>Список вузов и порядок приоритетов</b>: порядок называет ученик",
+       "<b>Два плана Б</b>: бюджет в другом вузе и платное в этом же"
+     ], gate:"Места теряют на механике подачи."},
+    {id:"consent", title:"Согласие", when:"срок этого года", state:"next",
+     sum:"Последний шаг: согласие на зачисление.",
+     items:["<b>Строка в списке</b>: сверить место и программу с официальным списком","<b>Срок и отзыв</b>: до какого момента согласие можно отозвать","<b>Подать самому</b>: в Госуслугах или кабинете вуза"],
+     gate:"Пропуск срока необратим."}
+  ];
+}
+function renderViews(){
+  var box = document.getElementById("views");
+  box.innerHTML = "";
+  [["now","Сейчас"],["all","Весь план"]].forEach(function(v){
+    var b = el("button", view===v[0]?"on":"", v[1]);
+    b.type = "button";
+    b.addEventListener("click", function(){ view = v[0]; window.scrollTo(0,0); render(); });
+    box.appendChild(b);
+  });
+}
+function renderAll(){
+  var box = document.getElementById("all");
+  box.innerHTML = "";
+  box.appendChild(el("h2",null,"Весь план"));
+  box.appendChild(el("p","lead", t("Пять этапов от профиля до согласия. Текущий открыт, остальные раскрываются нажатием.")));
+  var list = stages();
+  var allOpen = list.every(function(st){ return openStage[st.id]===undefined ? st.state==="now" : openStage[st.id]; });
+  var toggle = el("button","go", allOpen ? "Свернуть всё" : "Развернуть всё");
+  toggle.type = "button";
+  toggle.style.margin = "0 0 12px";
+  toggle.addEventListener("click", function(){
+    list.forEach(function(st){ openStage[st.id] = !allOpen ? true : (st.state==="now"); });
+    render();
+  });
+  box.appendChild(toggle);
+  var ol = el("ol","tl");
+  list.forEach(function(st){
+    var open = openStage[st.id]===undefined ? st.state==="now" : openStage[st.id];
+    var li = el("li","stage "+st.state);
+    var b = el("button","stagebtn");
+    b.type = "button";
+    var top = el("span","top");
+    top.appendChild(el("b",null,st.title));
+    top.appendChild(el("span","when",st.when));
+    b.appendChild(top);
+    b.appendChild(el("span","state", st.state==="now"?"Сейчас":st.state==="done"?"Позади":"Дальше"));
+    b.appendChild(el("span","sum", t(st.sum)));
+    if(open){
+      var ul = el("ul","items");
+      st.items.forEach(function(x){ var i = el("li"); i.innerHTML = t(x); ul.appendChild(i); });
+      b.appendChild(ul);
+      if(st.gate) b.appendChild(el("p","gate", t(st.gate)));
+    }
+    b.addEventListener("click", function(){ openStage[st.id] = !open; render(); });
+    li.appendChild(b);
+    if(open && st.state==="now"){
+      var go = el("button","go","Вернуться к экрану «Сейчас»");
+      go.type = "button";
+      go.addEventListener("click", function(){ view = "now"; window.scrollTo(0,0); render(); });
+      li.appendChild(go);
+    }
+    ol.appendChild(li);
+  });
+  box.appendChild(ol);
+}
+function render(){
+  compact();
+  renderPlan();
+  renderViews();
+  var all = view==="all";
+  document.getElementById("count").hidden = all;
+  document.getElementById("grid").hidden = all;
+  document.getElementById("next").hidden = all;
+  document.getElementById("all").hidden = !all;
+  renderGrid();
+  renderTasks();
+  if(all) renderAll();
+  document.getElementById("foot").textContent = t("Пример, не данные. Наборы по приказам № 820 и № 821 и каталогу 2026. Базовая математика сюда не входит.");
+}
+document.getElementById("overlay").addEventListener("click", closeSheet);
+render();
+</script>
+</body>
+</html>
