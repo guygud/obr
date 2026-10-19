@@ -43,9 +43,32 @@ p{margin:0 0 12px}
 .note.info{border-color:var(--accent); background:var(--info-bg)}
 .stage{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:28px; align-items:start; margin-top:28px}
 @media(max-width:900px){.stage{grid-template-columns:1fr}}
-.map{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface)}
-.map svg{display:block; min-width:1180px}
-.hit{cursor:pointer}
+.map{border:1px solid var(--line); border-radius:10px; background:var(--surface); padding:22px 18px 10px}
+.tree{list-style:none; margin:0; padding:0 0 0 6px; border-left:2px solid var(--accent)}
+.block{position:relative; margin:0 0 28px; padding-left:22px}
+.block:last-child{margin-bottom:6px}
+.node{
+  display:block; width:100%; text-align:left; background:transparent; border:0;
+  padding:0; margin:0; font:inherit; color:inherit; cursor:pointer;
+}
+.hubbtn{padding:0 0 8px}
+.hubbtn strong{display:block; font-size:16px; line-height:1.3; font-weight:650}
+.hubbtn span{font-size:13px; color:var(--text-3)}
+.hubbtn.on strong{color:var(--accent)}
+.dot{
+  position:absolute; left:-12px; top:6px; width:12px; height:12px;
+  background:var(--surface); border:2px solid var(--accent); transform:rotate(45deg);
+}
+.quests{list-style:none; margin:0; padding:0}
+.quest{margin:0 0 12px; padding-left:14px; border-left:1px solid var(--line)}
+.qbtn{font-size:15px; line-height:1.35; color:var(--text-2); padding:1px 0}
+.qbtn.on{color:var(--text); font-weight:650}
+.sats{list-style:none; margin:6px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:6px}
+.sbtn{
+  width:auto; font-size:13px; line-height:1.3; color:var(--text-3);
+  border:1px solid var(--line); border-radius:999px; padding:3px 10px;
+}
+.sbtn.on{border-color:var(--accent); color:var(--text)}
 .detail{position:sticky; top:16px; border:1px solid var(--line); border-radius:10px; padding:18px 20px; background:var(--surface)}
 .detail h2{font-size:20px; margin:0 0 8px}
 .k{font-size:13px; font-weight:650; color:var(--text-3); margin:14px 0 4px}
@@ -59,13 +82,11 @@ footer a{color:var(--text-2)}
 <p class="eyebrow"><a href="index.html">ДНК продукта</a> · <a href="voronka.html">путь пользователя</a> · карта отсечек</p>
 <h1>Последовательность отсечек</h1>
 <p class="lead">Крупные узлы — только необратимые даты. Олимпиада, волонтёрство и льготы сюда не встали: это квест к подаче, не отдельная отсечка.</p>
-<div class="note info"><b>Как читать линии</b>
-Толстая линия между крупными узлами — порядок отсечек. Тонкая — квест, который готовит к этой дате. Даты видны сразу. «?» открывается просмотром, не счётом пройденного.</div>
+<div class="note info"><b>Как читать</b>
+Линия слева — порядок отсечек, сверху вниз. Квест висит на своей дате. «?» открывается просмотром, не счётом пройденного.</div>
 
 <div class="stage">
-  <div class="map">
-    <svg id="map" viewBox="0 0 1180 2000" width="1180" height="2000" role="img" aria-label="Отсечки по порядку и квесты к каждой"></svg>
-  </div>
+  <div class="map" id="map" aria-label="Отсечки по порядку и квесты к каждой"></div>
   <aside class="detail" id="detail"></aside>
 </div>
 <p class="tiny">Пример одного человека. Фрагменты работы и баллы выдуманы. 3,6%, 58,3% и 51,2% — из доклада ВШЭ, данные 2020–2023.</p>
@@ -204,52 +225,9 @@ var HUBS = [
   }
 ];
 
-var HUB_STEP = 360;
-var TOP = 160;
 var selected = "hub:subjects";
 var openIds = {};
 
-function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-function el(name, attrs){
-  var node = document.createElementNS("http://www.w3.org/2000/svg", name);
-  Object.keys(attrs).forEach(function(key){ node.setAttribute(key, attrs[key]); });
-  return node;
-}
-function text(x, y, value, attrs){
-  var node = el("text", Object.assign({ x: x, y: y }, attrs));
-  node.textContent = value;
-  return node;
-}
-function diamond(cx, cy, r){
-  return cx + "," + (cy - r) + " " + (cx + r) + "," + cy + " " + cx + "," + (cy + r) + " " + (cx - r) + "," + cy;
-}
-function trim(value, max){
-  if (value.length <= max) return value;
-  return value.slice(0, max - 1) + "…";
-}
-function layout(){
-  var hubs = [], quests = [], satellites = [], links = [];
-  HUBS.forEach(function(hub, hubIndex){
-    var outwardLeft = hubIndex % 2 === 0;
-    var hubX = outwardLeft ? 760 : 420;
-    var hubY = TOP + hubIndex * HUB_STEP;
-    hubs.push({ id: hub.id, title: hub.title, when: hub.when, x: hubX, y: hubY });
-    var count = hub.quests.length;
-    hub.quests.forEach(function(quest, questIndex){
-      var y = hubY + (questIndex - (count - 1) / 2) * 52;
-      var x = outwardLeft ? hubX - 280 : hubX + 280;
-      quests.push({ id: quest.id, title: quest.title, x: x, y: y });
-      links.push({ id: "q-" + quest.id, x1: hubX, y1: hubY, x2: x, y2: y });
-      quest.satellites.forEach(function(satellite, satelliteIndex){
-        var sy = y + (satelliteIndex - (quest.satellites.length - 1) / 2) * 26;
-        var sx = outwardLeft ? x - 155 : x + 155;
-        satellites.push({ id: satellite.id, label: satellite.label, hidden: satellite.hidden, x: sx, y: sy });
-        links.push({ id: "s-" + satellite.id, x1: x, y1: y, x2: sx, y2: sy });
-      });
-    });
-  });
-  return { hubs: hubs, quests: quests, satellites: satellites, links: links };
-}
 function findDetail(id){
   var parts = id.split(":");
   var kind = parts[0], key = parts[1];
@@ -267,75 +245,64 @@ function findDetail(id){
   }
   return null;
 }
+function button(className, on, label){
+  var node = document.createElement("button");
+  node.type = "button";
+  node.className = className + (on ? " on" : "");
+  if (typeof label === "string") node.textContent = label;
+  return node;
+}
 function draw(){
-  var accent = css("--accent"), textC = css("--text"), sec = css("--text-2"), tert = css("--text-3");
-  var line = css("--line"), surface = css("--surface"), bg = css("--bg");
-  var svg = document.getElementById("map");
-  svg.innerHTML = "";
-  var nodes = layout();
-  for (var i = 0; i < nodes.hubs.length - 1; i++){
-    var from = nodes.hubs[i], to = nodes.hubs[i + 1];
-    svg.appendChild(el("line", { x1: from.x, y1: from.y + 28, x2: to.x, y2: to.y - 22, stroke: accent, "stroke-width": 2 }));
-  }
-  nodes.links.forEach(function(link){
-    svg.appendChild(el("line", { x1: link.x1, y1: link.y1, x2: link.x2, y2: link.y2, stroke: line, "stroke-width": 1 }));
+  var root = document.getElementById("map");
+  root.innerHTML = "";
+  var tree = document.createElement("ol");
+  tree.className = "tree";
+  HUBS.forEach(function(hub){
+    var block = document.createElement("li");
+    block.className = "block";
+    var dot = document.createElement("span");
+    dot.className = "dot";
+    block.appendChild(dot);
+    var hubBtn = button("node hubbtn", selected === "hub:" + hub.id);
+    var title = document.createElement("strong");
+    title.textContent = hub.title;
+    var when = document.createElement("span");
+    when.textContent = hub.when;
+    hubBtn.appendChild(title);
+    hubBtn.appendChild(when);
+    hubBtn.addEventListener("click", function(){ selected = "hub:" + hub.id; render(); });
+    block.appendChild(hubBtn);
+    var quests = document.createElement("ul");
+    quests.className = "quests";
+    hub.quests.forEach(function(quest){
+      var item = document.createElement("li");
+      item.className = "quest";
+      var questBtn = button("node qbtn", selected === "quest:" + quest.id, quest.title);
+      questBtn.addEventListener("click", function(){ selected = "quest:" + quest.id; render(); });
+      item.appendChild(questBtn);
+      if (quest.satellites.length){
+        var sats = document.createElement("ul");
+        sats.className = "sats";
+        quest.satellites.forEach(function(satellite){
+          var hidden = satellite.hidden && !openIds[satellite.id];
+          var satItem = document.createElement("li");
+          var satBtn = button("node sbtn", selected === "sat:" + satellite.id, hidden ? "?" : satellite.label);
+          satBtn.addEventListener("click", function(){
+            selected = "sat:" + satellite.id;
+            if (hidden) openIds[satellite.id] = true;
+            render();
+          });
+          satItem.appendChild(satBtn);
+          sats.appendChild(satItem);
+        });
+        item.appendChild(sats);
+      }
+      quests.appendChild(item);
+    });
+    block.appendChild(quests);
+    tree.appendChild(block);
   });
-  nodes.satellites.forEach(function(node){
-    var hidden = node.hidden && !openIds[node.id];
-    var active = selected === "sat:" + node.id;
-    var g = el("g", { class: "hit" });
-    g.appendChild(el("polygon", {
-      points: diamond(node.x, node.y, 10),
-      fill: surface,
-      stroke: active ? accent : tert,
-      "stroke-width": active ? 2 : 1
-    }));
-    if (hidden) g.appendChild(text(node.x, node.y + 4, "?", { fill: sec, "font-size": 13, "text-anchor": "middle" }));
-    else g.appendChild(text(node.x, node.y + 22, trim(node.label, 18), { fill: tert, "font-size": 12, "text-anchor": "middle" }));
-    g.addEventListener("click", function(id, isHidden){
-      return function(){
-        selected = "sat:" + id;
-        if (isHidden) openIds[id] = true;
-        render();
-      };
-    }(node.id, hidden));
-    svg.appendChild(g);
-  });
-  nodes.quests.forEach(function(node){
-    var active = selected === "quest:" + node.id;
-    var g = el("g", { class: "hit" });
-    g.appendChild(el("polygon", {
-      points: diamond(node.x, node.y, 12),
-      fill: bg,
-      stroke: active ? accent : textC,
-      "stroke-width": active ? 2 : 1
-    }));
-    g.appendChild(text(node.x, node.y - 18, node.title, {
-      fill: active ? textC : sec,
-      "font-size": 13,
-      "text-anchor": "middle"
-    }));
-    g.addEventListener("click", function(id){
-      return function(){ selected = "quest:" + id; render(); };
-    }(node.id));
-    svg.appendChild(g);
-  });
-  nodes.hubs.forEach(function(node){
-    var active = selected === "hub:" + node.id;
-    var g = el("g", { class: "hit" });
-    g.appendChild(el("polygon", {
-      points: diamond(node.x, node.y, 22),
-      fill: surface,
-      stroke: accent,
-      "stroke-width": active ? 2.5 : 1.5
-    }));
-    g.appendChild(text(node.x, node.y + 44, node.title, { fill: textC, "font-size": 15, "text-anchor": "middle", "font-weight": 650 }));
-    g.appendChild(text(node.x, node.y + 62, node.when, { fill: tert, "font-size": 13, "text-anchor": "middle" }));
-    g.addEventListener("click", function(id){
-      return function(){ selected = "hub:" + id; render(); };
-    }(node.id));
-    svg.appendChild(g);
-  });
+  root.appendChild(tree);
 }
 function render(){
   var detail = findDetail(selected);
