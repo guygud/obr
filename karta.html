@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Карта отсечек · «Подбор вуза»</title>
+<meta name="description" content="Последовательность отсечек поступления и квесты, которые к ним ведут.">
+<style>
+:root{
+  --bg:#ffffff; --surface:#f7f7f8; --surface-2:#f0f0f2;
+  --text:#16161a; --text-2:#55555f; --text-3:#8a8a95;
+  --line:#e3e3e7; --accent:#6245c9;
+  --ok:#1a7f4b; --warn:#9a6207; --bad:#b3261e;
+  --ok-bg:#eaf6ef; --warn-bg:#fcf3e3; --bad-bg:#fbeceb; --info-bg:#eceaf8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#131316; --surface:#1a1a1f; --surface-2:#202027;
+    --text:#ececf0; --text-2:#a8a8b3; --text-3:#74747f;
+    --line:#2b2b33; --accent:#a493f0;
+    --ok:#5ec98b; --warn:#e0b05a; --bad:#ec8a84;
+    --ok-bg:#14261c; --warn-bg:#2a2113; --bad-bg:#2b1715; --info-bg:#1d1a2e;
+  }
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{font-size:13px; color:var(--text-3); margin:0 0 14px}
+.eyebrow a{color:var(--text-2); text-decoration:none}
+.eyebrow a:hover{color:var(--accent)}
+h1{font-size:clamp(30px,5vw,46px); line-height:1.15; letter-spacing:-.02em; margin:0 0 18px; font-weight:700}
+h2{font-size:23px; line-height:1.3; letter-spacing:-.01em; margin:0 0 12px; font-weight:650}
+p{margin:0 0 12px}
+.lead{font-size:18px; color:var(--text-2); max-width:74ch}
+.muted{color:var(--text-2)}
+.small{font-size:14px}
+.tiny{font-size:13px; color:var(--text-3)}
+.note{border-left:3px solid var(--line); background:var(--surface); padding:14px 16px; border-radius:0 8px 8px 0; margin:14px 0}
+.note b{display:block; margin-bottom:6px; font-weight:650}
+.note.info{border-color:var(--accent); background:var(--info-bg)}
+.stage{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:28px; align-items:start; margin-top:28px}
+@media(max-width:900px){.stage{grid-template-columns:1fr}}
+.map{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--surface)}
+.map svg{display:block; min-width:1180px}
+.hit{cursor:pointer}
+.detail{position:sticky; top:16px; border:1px solid var(--line); border-radius:10px; padding:18px 20px; background:var(--surface)}
+.detail h2{font-size:20px; margin:0 0 8px}
+.k{font-size:13px; font-weight:650; color:var(--text-3); margin:14px 0 4px}
+footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--line); font-size:13px; color:var(--text-3)}
+footer a{color:var(--text-2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow"><a href="index.html">ДНК продукта</a> · <a href="voronka.html">путь пользователя</a> · карта отсечек</p>
+<h1>Последовательность отсечек</h1>
+<p class="lead">Крупные узлы — только необратимые даты. Олимпиада, волонтёрство и льготы сюда не встали: это квест к подаче, не отдельная отсечка.</p>
+<div class="note info"><b>Как читать линии</b>
+Толстая линия между крупными узлами — порядок отсечек. Тонкая — квест, который готовит к этой дате. Даты видны сразу. «?» открывается просмотром, не счётом пройденного.</div>
+
+<div class="stage">
+  <div class="map">
+    <svg id="map" viewBox="0 0 1180 2000" width="1180" height="2000" role="img" aria-label="Отсечки по порядку и квесты к каждой"></svg>
+  </div>
+  <aside class="detail" id="detail"></aside>
+</div>
+<p class="tiny">Пример одного человека. Фрагменты работы и баллы выдуманы. 3,6%, 58,3% и 51,2% — из доклада ВШЭ, данные 2020–2023.</p>
+
+<footer>
+<a href="index.html">ДНК продукта</a> · <a href="voronka.html">Путь пользователя</a>
+</footer>
+</div>
+
+<script>
+var HUBS = [
+  {
+    id: "profile",
+    title: "Профиль и ОГЭ",
+    when: "весна 9 класса",
+    gate: "необратимо",
+    lead: "Предметы здесь фиксируют перечень направлений на два года.",
+    quests: [
+      { id: "profile-map", title: "Карта профиля", who: "мы", body: "По каждому профилю: предметы ОГЭ и ЕГЭ, сколько направлений он открывает и сколько закрывает. Какой выбрать — не говорим.", price: "Профиль выберут без чисел.", satellites: [] },
+      { id: "profile-oge", title: "Предметы ОГЭ и зачем", who: "он", body: "Перечень его словами. У каждого предмета — какое направление он держит открытым.", price: "Запись на ОГЭ не стыкуется с тем, что он не отбросил.", satellites: [] },
+      { id: "profile-file", title: "Запись на ОГЭ", who: "он", body: "Подтверждение школы. Отметка у нас без документа не считается.", price: "Состав экзаменов не совпадёт с профилем.", satellites: [] }
+    ]
+  },
+  {
+    id: "subjects",
+    title: "Предметы ЕГЭ",
+    when: "1 февраля",
+    gate: "необратимо по составу",
+    lead: "Сюда ведут квесты про выбор: что отсечь, как выглядит работа, какие предметы это держат.",
+    quests: [
+      {
+        id: "sub-cut", title: "Отсеки направления", who: "он",
+        body: "Список областей, куда он точно не пойдёт, и причина его словами у каждой.",
+        price: "Перечень предметов соберут без его отсева.",
+        satellites: [
+          { id: "med", label: "Медицина", hidden: false, body: "Исключено. Причина: не выношу вида крови." },
+          { id: "law", label: "Право", hidden: false, body: "Исключено. Причина: это мамин вариант, не мой." },
+          { id: "media", label: "Медиа", hidden: true, body: "Монтаж выпуска к утру. Свет плохой, звук с телефона, ведущий опоздал." }
+        ]
+      },
+      {
+        id: "sub-look", title: "Как выглядит день", who: "он",
+        body: "Фрагмент работы, не название профессии. Реакция — оставил или исключил.",
+        price: "Предметы выберут по описанию программы, а не по работе.",
+        satellites: [
+          { id: "bio", label: "Биоинформатика", hidden: true, body: "Таблица на тысячи строк. Половина помечена как ошибка секвенирования." },
+          { id: "eng", label: "Инженерия", hidden: true, body: "Стенд не запускается. До конца смены ищут, какой датчик врёт." },
+          { id: "ped", label: "Педагогика", hidden: true, body: "Класс не слушает. Надо удержать сорок минут без крика." }
+        ]
+      },
+      { id: "sub-name", title: "Предметы и зачем", who: "он", body: "Перечень его словами. У каждого предмета — какое оставшееся направление он держит.", price: "После 1 февраля состав этой сессии не пересобрать.", satellites: [] },
+      {
+        id: "sub-map", title: "Что закроется", who: "мы",
+        body: "Обязательные предметы, что уже зафиксировал профиль, какие направления закроются, если предмет убрать.",
+        price: "Уберут предмет как лишний и потеряют направление.",
+        satellites: [
+          { id: "lock", label: "Уже зафиксировано", hidden: false, body: "Часть предметов пришла из профиля 9 класса. Заново это не выбирается." }
+        ]
+      },
+      { id: "sub-file", title: "Заявление в школе", who: "он", body: "Подтверждённая подача с тем составом, который он назвал.", price: "Часть направлений недостижима до следующего года.", satellites: [] }
+    ]
+  },
+  {
+    id: "exam",
+    title: "Сдать ЕГЭ",
+    when: "даты экзаменов",
+    gate: "внешний срок",
+    lead: "Сюда ведут только квесты про сам экзамен. Олимпиада, волонтёрство и льготы — не сюда: они прикладываются к заявлению.",
+    quests: [
+      {
+        id: "ex-goal", title: "Целевой балл", who: "он",
+        body: "По каждому предмету балл называет он. Порог показываем, цель не подставляем.",
+        price: "План считается без его цели.",
+        satellites: [
+          { id: "math-goal", label: "Математика, 80", hidden: false, body: "Пример одного человека. Цель поставил он." },
+          { id: "rus-goal", label: "Русский, 85", hidden: false, body: "Пример одного человека. Цель поставил он." }
+        ]
+      },
+      {
+        id: "ex-gap", title: "Разрыв по темам", who: "мы",
+        body: "Текущий балл, его цель, разрыв, какая тема даёт основной резерв. Нет замера — так и написано.",
+        price: "Занятия идут мимо тем, где теряются баллы.",
+        satellites: [
+          { id: "math-gap", label: "Математика, −12", hidden: false, body: "Пробник 68 при цели 80. Месяц без замера — разрыв не улучшается." },
+          { id: "rus-gap", label: "Русский, −4", hidden: false, body: "Пробник 81 при цели 85. Балл ниже прошлого — нормальный результат." },
+          { id: "inf-gap", label: "Информатика, нет замера", hidden: false, body: "Это не ноль и не прогресс." }
+        ]
+      },
+      { id: "ex-vol", title: "Объём на неделю", who: "он", body: "Часы или число задач. Не «настроился». Число назначает он.", price: "Нагрузка не сопоставима с разрывом.", satellites: [] },
+      { id: "ex-try", title: "Пробник", who: "он", body: "Балл приходит из пробника или тренажёра, в том числе ФИПИ.", price: "План опирается на старое число.", satellites: [] },
+      {
+        id: "ex-topic", title: "Тема из разрыва", who: "он",
+        body: "Тренажёр называется по проваленной теме. Не потому, что сервис подключён.",
+        price: "Тема с крупным вкладом остаётся без замера.",
+        satellites: [
+          { id: "stereo", label: "Стереометрия", hidden: false, body: "Тема из разрыва по математике. Баллы на ней — из его замера." }
+        ]
+      },
+      { id: "ex-dispute", title: "Оспорь прогноз", who: "он", body: "Прогноз только с допущением. «Не так» пересчитывает разрыв.", price: "Готовится под цифру, которую нельзя оспорить.", satellites: [] }
+    ]
+  },
+  {
+    id: "apply",
+    title: "Подача",
+    when: "июнь–июль",
+    gate: "места теряют на механике",
+    lead: "Треть оказывается в запасном вузе. Порядок называет он.",
+    quests: [
+      { id: "ap-list", title: "Список вузов", who: "он", body: "Число его. Мы не пишем «добавь 5».", price: "К концу кампании подавать некуда.", satellites: [] },
+      { id: "ap-prio", title: "Приоритеты", who: "он", body: "Порядок в заявлении совпадает с тем, что он назвал. Мы порядок не предлагаем.", price: "Место уходит тому, кто выше по механике.", satellites: [] },
+      { id: "ap-b", title: "Два плана Б", who: "он", body: "Бюджет в другом вузе и платное в этом же. 58,3% школьников держатся за первое, 51,2% родителей — за второе.", price: "Приоритеты ставят под чужой размен.", satellites: [] },
+      {
+        id: "ap-extra", title: "Кроме баллов ЕГЭ", who: "мы",
+        body: "Олимпиады, волонтёрство и льготы сходятся к подаче, но не в одну корзину. Часть прибавляет баллы к конкурсу. Часть меняет, в каком конкурсе он участвует. Мы раскладываем, что из этого баллы, а что право. Юридическое право не подтверждаем.",
+        price: "Диплом, который снимает конкурс, посчитают как мелочь. Льготу посчитают как баллы.",
+        satellites: [
+          { id: "vsosh", label: "ВсОШ", hidden: false, body: "Не отсечка. Диплом нужного уровня может снять конкурс целиком или дать 100 баллов по предмету. Это не «ещё несколько баллов». Олимпиада — 3,6% зачислений. Регистрация в сентябре, пропуск года обратим." },
+          { id: "listed", label: "Перечневые", hidden: false, body: "Другие олимпиады. Исход тот же развилкой: где диплом даёт БВИ, где 100 баллов, где ничего. Список свой у каждого вуза." },
+          { id: "vol", label: "Волонтёрство", hidden: false, body: "Индивидуальное достижение. Даёт баллы по правилам вуза, конкурс не снимает. Сколько баллов — из правил этого вуза, не общая норма." },
+          { id: "benefit", label: "Льготы", hidden: false, body: "Не баллы. Особая квота, отдельная квота, преимущественное право — другое соревнование. Подходит, нужно уточнить или мы не знаем. Юридическое право подтверждают в вузе." }
+        ]
+      }
+    ]
+  },
+  {
+    id: "consent",
+    title: "Согласие",
+    when: "срок этого года",
+    gate: "пропуск необратим",
+    lead: "Внутри срока согласие можно отозвать. Это говорим мы: вузы не говорят.",
+    quests: [
+      { id: "co-row", title: "Строка в списке", who: "он", body: "Место и программа сверяются с официальным списком на ту же дату.", price: "Согласие уходит не туда.", satellites: [] },
+      { id: "co-time", title: "Срок и отзыв", who: "мы", body: "Дата, время, до какого момента отзыв, что будет при пропуске.", price: "Дедлайн можно не заметить.", satellites: [] },
+      { id: "co-yes", title: "Подай сам", who: "он", body: "Статус в Госуслугах или кабинете вуза. Не родитель и не сервис.", price: "Место уходит дальше по списку.", satellites: [] }
+    ]
+  }
+];
+
+var HUB_STEP = 360;
+var TOP = 160;
+var selected = "hub:subjects";
+var openIds = {};
+
+function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function el(name, attrs){
+  var node = document.createElementNS("http://www.w3.org/2000/svg", name);
+  Object.keys(attrs).forEach(function(key){ node.setAttribute(key, attrs[key]); });
+  return node;
+}
+function text(x, y, value, attrs){
+  var node = el("text", Object.assign({ x: x, y: y }, attrs));
+  node.textContent = value;
+  return node;
+}
+function diamond(cx, cy, r){
+  return cx + "," + (cy - r) + " " + (cx + r) + "," + cy + " " + cx + "," + (cy + r) + " " + (cx - r) + "," + cy;
+}
+function trim(value, max){
+  if (value.length <= max) return value;
+  return value.slice(0, max - 1) + "…";
+}
+function layout(){
+  var hubs = [], quests = [], satellites = [], links = [];
+  HUBS.forEach(function(hub, hubIndex){
+    var outwardLeft = hubIndex % 2 === 0;
+    var hubX = outwardLeft ? 760 : 420;
+    var hubY = TOP + hubIndex * HUB_STEP;
+    hubs.push({ id: hub.id, title: hub.title, when: hub.when, x: hubX, y: hubY });
+    var count = hub.quests.length;
+    hub.quests.forEach(function(quest, questIndex){
+      var y = hubY + (questIndex - (count - 1) / 2) * 52;
+      var x = outwardLeft ? hubX - 280 : hubX + 280;
+      quests.push({ id: quest.id, title: quest.title, x: x, y: y });
+      links.push({ id: "q-" + quest.id, x1: hubX, y1: hubY, x2: x, y2: y });
+      quest.satellites.forEach(function(satellite, satelliteIndex){
+        var sy = y + (satelliteIndex - (quest.satellites.length - 1) / 2) * 26;
+        var sx = outwardLeft ? x - 155 : x + 155;
+        satellites.push({ id: satellite.id, label: satellite.label, hidden: satellite.hidden, x: sx, y: sy });
+        links.push({ id: "s-" + satellite.id, x1: x, y1: y, x2: sx, y2: sy });
+      });
+    });
+  });
+  return { hubs: hubs, quests: quests, satellites: satellites, links: links };
+}
+function findDetail(id){
+  var parts = id.split(":");
+  var kind = parts[0], key = parts[1];
+  for (var i = 0; i < HUBS.length; i++){
+    var hub = HUBS[i];
+    if (kind === "hub" && hub.id === key) return { title: hub.title, meta: hub.when + ". " + hub.gate + ".", body: hub.lead, price: "" };
+    for (var q = 0; q < hub.quests.length; q++){
+      var quest = hub.quests[q];
+      if (kind === "quest" && quest.id === key) return { title: quest.title, meta: "К отсечке «" + hub.title + "». Делает " + quest.who + ".", body: quest.body, price: quest.price };
+      for (var s = 0; s < quest.satellites.length; s++){
+        var satellite = quest.satellites[s];
+        if (kind === "sat" && satellite.id === key) return { title: satellite.label, meta: "Часть квеста «" + quest.title + "».", body: satellite.body, price: "" };
+      }
+    }
+  }
+  return null;
+}
+function draw(){
+  var accent = css("--accent"), textC = css("--text"), sec = css("--text-2"), tert = css("--text-3");
+  var line = css("--line"), surface = css("--surface"), bg = css("--bg");
+  var svg = document.getElementById("map");
+  svg.innerHTML = "";
+  var nodes = layout();
+  for (var i = 0; i < nodes.hubs.length - 1; i++){
+    var from = nodes.hubs[i], to = nodes.hubs[i + 1];
+    svg.appendChild(el("line", { x1: from.x, y1: from.y + 28, x2: to.x, y2: to.y - 22, stroke: accent, "stroke-width": 2 }));
+  }
+  nodes.links.forEach(function(link){
+    svg.appendChild(el("line", { x1: link.x1, y1: link.y1, x2: link.x2, y2: link.y2, stroke: line, "stroke-width": 1 }));
+  });
+  nodes.satellites.forEach(function(node){
+    var hidden = node.hidden && !openIds[node.id];
+    var active = selected === "sat:" + node.id;
+    var g = el("g", { class: "hit" });
+    g.appendChild(el("polygon", {
+      points: diamond(node.x, node.y, 10),
+      fill: surface,
+      stroke: active ? accent : tert,
+      "stroke-width": active ? 2 : 1
+    }));
+    if (hidden) g.appendChild(text(node.x, node.y + 4, "?", { fill: sec, "font-size": 13, "text-anchor": "middle" }));
+    else g.appendChild(text(node.x, node.y + 22, trim(node.label, 18), { fill: tert, "font-size": 12, "text-anchor": "middle" }));
+    g.addEventListener("click", function(id, isHidden){
+      return function(){
+        selected = "sat:" + id;
+        if (isHidden) openIds[id] = true;
+        render();
+      };
+    }(node.id, hidden));
+    svg.appendChild(g);
+  });
+  nodes.quests.forEach(function(node){
+    var active = selected === "quest:" + node.id;
+    var g = el("g", { class: "hit" });
+    g.appendChild(el("polygon", {
+      points: diamond(node.x, node.y, 12),
+      fill: bg,
+      stroke: active ? accent : textC,
+      "stroke-width": active ? 2 : 1
+    }));
+    g.appendChild(text(node.x, node.y - 18, node.title, {
+      fill: active ? textC : sec,
+      "font-size": 13,
+      "text-anchor": "middle"
+    }));
+    g.addEventListener("click", function(id){
+      return function(){ selected = "quest:" + id; render(); };
+    }(node.id));
+    svg.appendChild(g);
+  });
+  nodes.hubs.forEach(function(node){
+    var active = selected === "hub:" + node.id;
+    var g = el("g", { class: "hit" });
+    g.appendChild(el("polygon", {
+      points: diamond(node.x, node.y, 22),
+      fill: surface,
+      stroke: accent,
+      "stroke-width": active ? 2.5 : 1.5
+    }));
+    g.appendChild(text(node.x, node.y + 44, node.title, { fill: textC, "font-size": 15, "text-anchor": "middle", "font-weight": 650 }));
+    g.appendChild(text(node.x, node.y + 62, node.when, { fill: tert, "font-size": 13, "text-anchor": "middle" }));
+    g.addEventListener("click", function(id){
+      return function(){ selected = "hub:" + id; render(); };
+    }(node.id));
+    svg.appendChild(g);
+  });
+}
+function render(){
+  var detail = findDetail(selected);
+  var box = document.getElementById("detail");
+  if (!detail){ box.innerHTML = ""; return; }
+  box.innerHTML =
+    "<h2>" + detail.title + "</h2>" +
+    "<p class='tiny'>" + detail.meta + "</p>" +
+    "<p class='small'>" + detail.body + "</p>" +
+    (detail.price ? "<div class='k'>Цена пропуска</div><p class='small muted'>" + detail.price + "</p>" : "");
+  draw();
+}
+render();
+</script>
+</body>
+</html>
