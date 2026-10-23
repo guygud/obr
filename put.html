@@ -82,6 +82,10 @@ canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
 .node span{display:block;font-size:13px;color:var(--dim);line-height:1.25}
 .node.on b{color:var(--gold)}
 .node.off{opacity:.55}
+.node.lane{max-width:84px;padding:1px 4px}
+.node.lane b{font-size:14px}
+.node.river{max-width:112px;text-align:center}
+.node.river b{font-size:14px;white-space:normal}
 .tag{
   position:absolute;left:8px;pointer-events:none;
   font-size:14px;color:var(--spark);text-shadow:2px 2px 0 var(--ink);
@@ -200,21 +204,61 @@ var SUBJECTS = {
 };
 var PICK = ["math","inf","phys","chem","bio","soc","hist","eng","lit","geo"];
 var DIRS = [
-  {id:"it", title:"IT", c:3, r:2, fixed:["math"], fan:["phys","inf"],
+  {id:"it", title:"IT", fixed:["math"], fan:["phys","inf"],
     about:"Чаще русский, математика и физика или информатика.",
-    reels:["День разработчика: ошибка в данных, половина строк не сходится.","Стенд не запускается. До конца смены ищут, какой датчик врёт."]},
-  {id:"law", title:"Право", c:11, r:2, fixed:["soc"], fan:["hist","inf","eng","math"],
+    reels:["День разработчика: ошибка в данных, половина строк не сходится.","Стенд не запускается. До конца смены ищут, какой датчик врёт."],
+    specs:[
+      {id:"it-se", title:"Программная инженерия", programs:[
+        {id:"it-se-a", title:"ПИ, пример вуза А", need:["rus","math","inf"]},
+        {id:"it-se-b", title:"ПИ, пример вуза Б", need:["rus","math","phys"]}]},
+      {id:"it-app", title:"Прикладная информатика", programs:[
+        {id:"it-app-a", title:"ПИв, пример вуза А", need:["rus","math","inf"]},
+        {id:"it-app-b", title:"ПИв, пример вуза Б", need:["rus","math","inf"]}]}
+    ]},
+  {id:"law", title:"Право", fixed:["soc"], fan:["hist","inf","eng","math"],
     about:"Обществознание обязательно. Третьим бывают история, информатика, английский или математика.",
-    reels:["Разбор кейса: два документа говорят разное, надо выбрать норму.","Приём: человеку объясняют, какой бумаги не хватает."]},
-  {id:"econ", title:"Экономика", c:19, r:2, fixed:["math"], fan:["inf","hist","soc","eng","geo"],
+    reels:["Разбор кейса: два документа говорят разное, надо выбрать норму.","Приём: человеку объясняют, какой бумаги не хватает."],
+    specs:[
+      {id:"law-jur", title:"Юриспруденция", programs:[
+        {id:"law-jur-a", title:"Юр, пример вуза А", need:["rus","soc","hist"]},
+        {id:"law-jur-b", title:"Юр, пример вуза Б", need:["rus","soc","inf"]}]},
+      {id:"law-pub", title:"Правовое обеспечение", programs:[
+        {id:"law-pub-a", title:"Право, пример вуза А", need:["rus","soc","hist"]},
+        {id:"law-pub-b", title:"Право, пример вуза Б", need:["rus","soc","eng"]}]}
+    ]},
+  {id:"econ", title:"Экономика", fixed:["math"], fan:["inf","hist","soc","eng","geo"],
     about:"Математика обязательна. Третий предмет вуз выбирает из своего списка.",
-    reels:["Разбор отчёта: цифры сходятся, а вывод заказчика нет.","Смена в магазине: считают, почему полка пустая к вечеру."]},
-  {id:"med", title:"Медицина", c:6, r:5.5, fixed:["bio","chem"], fan:[],
+    reels:["Разбор отчёта: цифры сходятся, а вывод заказчика нет.","Смена в магазине: считают, почему полка пустая к вечеру."],
+    specs:[
+      {id:"econ-ec", title:"Экономика", programs:[
+        {id:"econ-ec-a", title:"Экон, пример вуза А", need:["rus","math","soc"]},
+        {id:"econ-ec-b", title:"Экон, пример вуза Б", need:["rus","math","inf"]}]},
+      {id:"econ-mg", title:"Менеджмент", programs:[
+        {id:"econ-mg-a", title:"Мен, пример вуза А", need:["rus","math","soc"]},
+        {id:"econ-mg-b", title:"Мен, пример вуза Б", need:["rus","math","eng"]}]}
+    ]},
+  {id:"med", title:"Медицина", fixed:["bio","chem"], fan:[],
     about:"Русский, биология и химия. Оба предмета фиксированы.",
-    reels:["Практика: надо остаться в кабинете, когда пациенту плохо.","Лаборатория: подпись на пробирке важнее скорости."]},
-  {id:"art", title:"Творческие", c:14.5, r:5.5, fixed:["lit"], fan:[], dvi:true,
+    reels:["Практика: надо остаться в кабинете, когда пациенту плохо.","Лаборатория: подпись на пробирке важнее скорости."],
+    specs:[
+      {id:"med-le", title:"Лечебное дело", programs:[
+        {id:"med-le-a", title:"Леч, пример вуза А", need:["rus","bio","chem"]},
+        {id:"med-le-b", title:"Леч, пример вуза Б", need:["rus","bio","chem"]}]},
+      {id:"med-pe", title:"Педиатрия", programs:[
+        {id:"med-pe-a", title:"Педиатрия, пример вуза А", need:["rus","bio","chem"]},
+        {id:"med-pe-b", title:"Педиатрия, пример вуза Б", need:["rus","bio","chem"]}]}
+    ]},
+  {id:"art", title:"Творческие", fixed:["lit"], fan:[], dvi:true,
     about:"Часто литература плюс испытание вуза: рисунок, собеседование или конкурс.",
-    reels:["Редактура: текст сокращают вдвое, смысл должен остаться.","Просмотр: работу оценивают люди, не балл ЕГЭ."]}
+    reels:["Редактура: текст сокращают вдвое, смысл должен остаться.","Просмотр: работу оценивают люди, не балл ЕГЭ."],
+    specs:[
+      {id:"art-jr", title:"Журналистика", programs:[
+        {id:"art-jr-a", title:"Жур, пример вуза А", need:["rus","lit"]},
+        {id:"art-jr-b", title:"Жур, пример вуза Б", need:["rus","lit"]}]},
+      {id:"art-ds", title:"Дизайн", programs:[
+        {id:"art-ds-a", title:"Дизайн, пример вуза А", need:["rus","lit"]},
+        {id:"art-ds-b", title:"Дизайн, пример вуза Б", need:["rus","lit"]}]}
+    ]}
 ];
 var ARTIFACTS = [
   {id:"ege", title:"Заявление на ЕГЭ", short:"ЕГЭ", text:"Фиксирует предметы. Появляется, когда объявишь их на воротах."},
@@ -224,10 +268,11 @@ var ARTIFACTS = [
   {id:"consent", title:"Согласие на зачисление", short:"Согл.", text:"Последний документ пути. Пропуск срока необратим."}
 ];
 var WAYS = [
-  {id:"subj", side:"Налево", col:4, short:"Предметы", title:"По предметам", text:"Цели — то, что открывают выбранные экзамены."},
-  {id:"auto", side:"Прямо", col:11, short:"Пробники", title:"Автоматически", text:"Цели — то, что открывают твои сильные пробники."},
-  {id:"test", side:"Направо", col:18, short:"Тест", title:"Тест", text:"Цели — направления, которые ты отметил в тесте."}
+  {id:"subj", side:"Налево", col:3, short:"Предметы", title:"По предметам", text:"Цели — то, что открывают выбранные экзамены."},
+  {id:"auto", side:"Прямо", col:7, short:"Пробники", title:"Автоматически", text:"Цели — то, что открывают твои сильные пробники."},
+  {id:"test", side:"Направо", col:11, short:"Тест", title:"Тест", text:"Цели — направления, которые ты отметил в тесте."}
 ];
+var OPEN_PROGRAMS_AFTER_SEAL = true;
 
 var state;
 function fresh(){
@@ -242,13 +287,17 @@ function fresh(){
       soc:{now:74, prev:null, when:"сентябрь"}
     },
     have:{ege:false, olymp:false, medal:false, benefit:false, consent:false},
-    starred:{}
+    starred:{},
+    specs:[],
+    program:null
   };
 }
 state = fresh();
 var sheet = {kind:null, id:null, pick:null, marks:null};
 var art = null;
 var anim = {id:null, n:0};
+var riverShown = {dirs:0, specs:0, progs:0, mouth:0};
+var riverTimer = null;
 
 function calm(){ return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
 function t(s){
@@ -331,6 +380,70 @@ function autoSet(){
   var top = PICK.filter(measured).sort(function(a,b){ return state.scores[b].now-state.scores[a].now; }).slice(0,2);
   return top.length<2 ? null : ["rus"].concat(top);
 }
+function specBy(id){
+  var found = null;
+  DIRS.forEach(function(d){
+    d.specs.forEach(function(s){ if(s.id===id) found = {dir:d, spec:s}; });
+  });
+  return found;
+}
+function goalSpecs(){
+  var g = goals(state.way), out = [];
+  DIRS.forEach(function(d){
+    if(g.indexOf(d.id)<0) return;
+    d.specs.forEach(function(s){ out.push({dir:d, spec:s}); });
+  });
+  return out;
+}
+function markedSpecs(){
+  var ids = goalSpecs().map(function(x){ return x.spec.id; });
+  return state.specs.filter(function(id){ return ids.indexOf(id)>=0; });
+}
+function progList(){
+  var out = [];
+  markedSpecs().forEach(function(id){
+    var s = specBy(id);
+    s.spec.programs.forEach(function(p){ out.push({dir:s.dir, spec:s.spec, program:p}); });
+  });
+  return out;
+}
+function activeProgram(){
+  if(!state.program) return null;
+  var list = progList();
+  for(var i=0;i<list.length;i++) if(list[i].program.id===state.program) return list[i];
+  return null;
+}
+function programsOpen(){
+  if(!markedSpecs().length) return false;
+  if(OPEN_PROGRAMS_AFTER_SEAL) return !!state.sealed;
+  var set = examSet();
+  if(state.exam.goal==null || set.length<3) return false;
+  return set.every(function(id){ return gapOf(id)!=null && gapOf(id)<=0; });
+}
+function needCover(need){
+  var set = examSet();
+  var miss = need.filter(function(id){ return set.indexOf(id)<0; });
+  return {open: set.length>=3 && !miss.length, miss:miss};
+}
+function needText(need, dvi){
+  var c = needCover(need);
+  if(c.open) return dvi ? "открыто, ещё испытание вуза" : "открыто";
+  if(!c.miss.length) return "нужны ещё предметы";
+  if(c.miss.length===1) return needOne(c.miss[0]);
+  return "нужны "+c.miss.slice(0,-1).map(low).join(", ")+" и "+low(c.miss[c.miss.length-1]);
+}
+function specWord(n){
+  var a = n%10, b = n%100;
+  if(a===1 && b!==11) return "специальность";
+  if(a>=2 && a<=4 && (b<10 || b>=20)) return "специальности";
+  return "специальностей";
+}
+function specMarked(n){
+  var a = n%10, b = n%100;
+  if(a===1 && b!==11) return n+" отмечена";
+  if(a>=2 && a<=4 && (b<10 || b>=20)) return n+" отмечены";
+  return n+" отмечено";
+}
 function goals(way){
   if(way==="subj") return DIRS.filter(function(d){ return cover(d, examSet()).open; }).map(function(d){ return d.id; });
   if(way==="auto"){
@@ -363,14 +476,15 @@ function nowTask(){
   if(state.way==="test" && !state.test) return {at:"stone", open:["test"], text:"пройди тест у камня"};
   if(set.length<3) return {at:"gate", open:["gate"], text:"выбери предметы на воротах"};
   if(state.exam.goal==null) return {at:"gate", open:["gate"], text:"выбери порог на воротах"};
+  if(g.length && !markedSpecs().length) return {at:"specs", open:["specs"], text:"отметь специальности на реке"};
   var bare = set.filter(function(id){ return !measured(id); });
   if(bare.length) return {at:"boss", open:["boss"], text:"сдай пробник по "+SUBJECTS[bare[0]].dat};
   var short = set.filter(function(id){ return gapOf(id)>0; });
   short.sort(function(a,b){ return gapOf(b)-gapOf(a); });
   if(short.length) return {at:"boss", open:["boss"], text:"добери "+gapOf(short[0])+" по "+SUBJECTS[short[0]].dat};
   if(!state.sealed) return {at:"gate", open:["gate"], text:"до 1 февраля объяви предметы"};
-  var open = g.filter(function(id){ return cover(dirBy(id), set).open; });
-  return {at:open[0]||"law", open:["dir", open[0]||"law"], text:"посмотри, что открыто"};
+  if(!activeProgram()) return {at:"progs", open:["progs"], text:"выбери программу"};
+  return {at:"post", open:["post"], text:"посмотри подачу"};
 }
 
 var canvas = document.getElementById("land");
@@ -392,7 +506,58 @@ function dedupe(list){
 }
 function laneTiles(w){
   var c = w.col;
-  return dedupe(line(11,27,c,25).concat(line(c,25,c,19)).concat(line(c,19,11,17)));
+  return dedupe(line(7,27,c,25).concat(line(c,25,c,19)).concat(line(c,19,7,17)));
+}
+function riverSpan(r){
+  if(r>=26) return [15,22];
+  if(r>=17) return [17,20];
+  return [18,19];
+}
+function riverLists(){
+  return {
+    dirs: goals(state.way),
+    specs: goalSpecs(),
+    progs: programsOpen() ? progList() : [],
+    mouth: activeProgram() ? [activeProgram()] : []
+  };
+}
+function riverCounts(){
+  var l = riverLists();
+  return {dirs:l.dirs.length, specs:l.specs.length, progs:l.progs.length, mouth:l.mouth.length};
+}
+function spots(stage, n){
+  var width = stage.c1 - stage.c0, cols = width+1, out = [], i;
+  for(i=0;i<n;i++){
+    var col, row;
+    if(n<=cols) col = n===1 ? stage.c0+Math.round(width/2) : stage.c0+Math.round(i*width/(n-1));
+    else { col = stage.c0+(i%cols); }
+    row = stage.rows[Math.floor(i/cols) % stage.rows.length];
+    out.push([col, row]);
+  }
+  return out;
+}
+function syncRiver(){
+  var counts = riverCounts();
+  if(calm()){
+    if(riverTimer){ clearInterval(riverTimer); riverTimer = null; }
+    riverShown = counts;
+    return;
+  }
+  ["dirs","specs","progs","mouth"].forEach(function(k){
+    if(counts[k] < riverShown[k]) riverShown[k] = counts[k];
+  });
+  var grow = ["dirs","specs","progs","mouth"].some(function(k){ return riverShown[k] < counts[k]; });
+  if(grow && !riverTimer){
+    riverTimer = setInterval(function(){
+      var c = riverCounts();
+      var more = false;
+      ["dirs","specs","progs","mouth"].forEach(function(k){
+        if(riverShown[k] < c[k]){ riverShown[k]++; more = true; }
+      });
+      draw();
+      if(!more){ clearInterval(riverTimer); riverTimer = null; }
+    }, 90);
+  }
 }
 function step(c,r,color){
   var x = c*T, y = r*T;
@@ -410,24 +575,41 @@ function draw(){
     }
   }
   for(r=0;r<8;r++) for(c=1;c<23;c++) fill(c,r, ((c+r)%2===0) ? "#2A2540" : "#26213A");
-  for(c=1;c<23;c++) fill(c,8, c===11 ? "#26213A" : ((c%2)?"#7C7A8C":"#6E6C7E"));
+  for(c=1;c<23;c++) fill(c,8, c===7 ? "#26213A" : ((c%2)?"#7C7A8C":"#6E6C7E"));
   for(r=14;r<=16;r++) for(c=1;c<23;c++){
-    if(c>=10 && c<=12) continue;
+    if(c>=6 && c<=8) continue;
     fill(c,r, ((c*3+r)%5===0) ? "#6E6C7E" : "#7C7A8C");
   }
-  [[2,12],[20,11],[6,29],[18,30],[21,23],[2,32],[15,12]].forEach(function(p){
+  [[2,11],[1,22],[12,29],[1,32],[10,18]].forEach(function(p){
     fill(p[0],p[1],"#2F5A32");
     ctx.fillStyle = "#1E3E22";
     ctx.fillRect(p[0]*T+6, p[1]*T+10, 4, 6);
   });
-  DIRS.forEach(function(d){
-    var col = Math.round(d.c), row = Math.min(7, Math.ceil(d.r)+1);
-    var lit = g.indexOf(d.id)>=0;
-    fill(col,row, lit && cover(d,set).open ? "#E0A33E" : (lit ? "#E8E3F2" : "#3A3550"));
+  for(r=0;r<ROWS;r++){
+    var span = riverSpan(r);
+    for(c=span[0];c<=span[1];c++) fill(c,r, ((c+r)%2===0) ? "#2E6F8E" : "#275F7A");
+  }
+  var lists = riverLists();
+  [
+    {id:"dirs", c0:15, c1:22, rows:[32,31]},
+    {id:"specs", c0:17, c1:20, rows:[24,23,22]},
+    {id:"progs", c0:18, c1:19, rows:[13,12]},
+    {id:"mouth", c0:18, c1:19, rows:[3]}
+  ].forEach(function(st){
+    var full = lists[st.id];
+    var n = Math.min(riverShown[st.id]||0, full.length);
+    spots(st, full.length).slice(0, n).forEach(function(p, i){
+      var gold = st.id==="dirs" || st.id==="mouth" ||
+        (st.id==="specs" && state.specs.indexOf(full[i].spec.id)>=0) ||
+        (st.id==="progs" && full[i].program.id===state.program);
+      fill(p[0], p[1], gold ? "#E0A33E" : "#4E7A4A");
+      ctx.fillStyle = "rgba(255,255,255,.35)";
+      ctx.fillRect(p[0]*T+4, p[1]*T+4, 6, 4);
+    });
   });
   var reach = g.some(function(id){ return cover(dirBy(id),set).open; });
-  line(11,13,11,9).forEach(function(p){ step(p[0],p[1], reach ? "#E0A33E" : "#7C7A8C"); });
-  for(r=14;r<=16;r++) step(11,r, set.length>=3 ? "#E0A33E" : "#7C7A8C");
+  line(7,13,7,9).forEach(function(p){ step(p[0],p[1], reach ? "#E0A33E" : "#7C7A8C"); });
+  for(r=14;r<=16;r++) step(7,r, set.length>=3 ? "#E0A33E" : "#7C7A8C");
   WAYS.forEach(function(w){
     if(w.id===state.way) return;
     laneTiles(w).forEach(function(q){ step(q[0],q[1],"#7C7A8C"); });
@@ -440,13 +622,13 @@ function draw(){
   }
   if(state.sealed){
     ctx.fillStyle = "#E0A33E";
-    ctx.fillRect(10*T+4, 15*T+4, 8, 8);
-    ctx.fillRect(12*T+4, 15*T+4, 8, 8);
+    ctx.fillRect(6*T+4, 15*T+4, 8, 8);
+    ctx.fillRect(8*T+4, 15*T+4, 8, 8);
   }
-  var sx = 11*T, sy = 27*T;
+  var sx = 7*T, sy = 27*T;
   ctx.fillStyle = "#7C7A8C"; ctx.fillRect(sx+1, sy+2, 14, 14);
   ctx.fillStyle = "#5C5A6C"; ctx.fillRect(sx+4, sy+6, 8, 2); ctx.fillRect(sx+4, sy+10, 6, 2);
-  var mx = 11*T, my = 31*T;
+  var mx = 7*T, my = 31*T;
   ctx.fillStyle = "#E8E3F2"; ctx.fillRect(mx+4, my, 8, 6);
   ctx.fillStyle = "#E0A33E"; ctx.fillRect(mx+3, my+6, 10, 8);
   ctx.fillStyle = "#141222"; ctx.fillRect(mx+5, my+2, 2, 2); ctx.fillRect(mx+9, my+2, 2, 2);
@@ -480,27 +662,34 @@ function addNode(id, c, r, title, sub, cls, onClick, label){
 function placeNodes(){
   var box = document.getElementById("nodes");
   box.innerHTML = "";
-  var set = examSet(), g = goals(state.way);
-  DIRS.forEach(function(d){
-    var lit = g.indexOf(d.id)>=0;
-    var sub = !state.way ? "" : (lit ? (set.length>=3 ? shortHole(d,set) : "цель") : "");
-    var cls = !state.way ? "" : (lit ? (cover(d,set).open ? "on" : "") : "off");
-    addNode(d.id, d.c, d.r, d.title, sub, cls, function(){ openSheet(["dir", d.id]); });
-  });
-  addNode("chest", 21, 6.6, "Допы", "", "", function(){ openSheet(["chest"]); });
-  addNode("boss", 11, 10.5, "ЕГЭ", state.exam.goal!=null ? "порог "+state.exam.goal : "пробники", state.exam.goal!=null ? "on" : "", function(){ openSheet(["boss"]); });
-  addNode("gate", 11, 15, state.sealed ? "Печать" : "Ворота", state.sealed ? "предметы объявлены" : "экзамены", state.sealed ? "on" : "", function(){ openSheet(["gate"]); });
+  var g = goals(state.way), specN = markedSpecs().length, progOn = programsOpen(), ap = activeProgram();
+  addNode("post", 4.5, 2.4, "Поступление", ap ? ap.program.title : "июнь–июль", ap ? "on river" : "river", function(){ openSheet(["post"]); });
+  addNode("chest", 11, 5.2, "Допы", "", "", function(){ openSheet(["chest"]); });
+  addNode("progs", 18.5, 10.6, "Программы",
+    progOn ? (ap ? "выбрана" : "выбери") : (state.sealed ? "нет специальностей" : "после 1 февраля"),
+    "river"+(progOn ? (ap ? " on" : "") : " off"),
+    function(){ openSheet(["progs"]); });
+  addNode("boss", 7, 10.5, "ЕГЭ", state.exam.goal!=null ? "порог "+state.exam.goal : "пробники", state.exam.goal!=null ? "on" : "", function(){ openSheet(["boss"]); });
+  addNode("gate", 7, 15, state.sealed ? "Печать" : "Ворота", state.sealed ? "предметы объявлены" : "экзамены", state.sealed ? "on" : "", function(){ openSheet(["gate"]); });
+  addNode("specs", 18.5, 19.2, "Специальности",
+    !g.length ? "после целей" : (specN ? specMarked(specN) : "выбери"),
+    "river"+(!g.length ? " off" : (specN ? " on" : "")),
+    function(){ openSheet(["specs"]); });
   WAYS.forEach(function(w){
     var isA = w.id===state.way;
-    addNode("way-"+w.id, w.col, 21.5, w.short, wayNote(w), isA ? "on" : "", function(){
+    addNode("way-"+w.id, w.col, w.id==="auto" ? 23.5 : 21.2, w.short, wayNote(w), "lane"+(isA ? " on" : ""), function(){
       if(w.id==="test" && !state.test){ openSheet(["test"]); return; }
       chooseWay(w.id); render();
       if(w.id==="subj") openSheet(["subjects"]);
     }, isA ? w.title+", выбрано" : "Искать цели: "+w.title);
   });
-  addNode("stone", 11, 27, "Камень", "как искать цели", "", function(){ openSheet(["stone"]); });
-  addNode("me", 11, 31, "я", "10 класс", "", function(){ document.getElementById("me").scrollIntoView({behavior:calm()?"auto":"smooth"}); }, "Кто я сейчас");
-  [{t:"Июль", r:7},{t:"Май–июнь", r:10},{t:"1 февраля", r:15},{t:"Октябрь", r:30}].forEach(function(lb){
+  addNode("dirs", 18.5, 28, "Направления",
+    !state.way ? "появятся у камня" : (g.length ? g.map(function(id){ return dirBy(id).title; }).join(", ") : "пока нет"),
+    "river"+(g.length ? " on" : ""),
+    function(){ openSheet(["dirs"]); });
+  addNode("stone", 7, 27, "Камень", "как искать цели", "", function(){ openSheet(["stone"]); });
+  addNode("me", 7, 31.2, "я", "10 класс", "", function(){ document.getElementById("me").scrollIntoView({behavior:calm()?"auto":"smooth"}); }, "Кто я сейчас");
+  [{t:"Июль", r:6.4},{t:"Май–июнь", r:8.7},{t:"1 февраля", r:17.3},{t:"Октябрь", r:29.4}].forEach(function(lb){
     var s = el("div","tag px", lb.t);
     s.style.top = (lb.r*T)+"px";
     box.appendChild(s);
@@ -512,6 +701,10 @@ function placeFlag(at){
   if(!node) return;
   var x = node.offsetLeft - node.offsetWidth/2;
   var y = node.offsetTop - node.offsetHeight/2 - 22;
+  if(y < 2){
+    x = node.offsetLeft + node.offsetWidth/2 + 4;
+    y = Math.max(2, node.offsetTop - node.offsetHeight/2);
+  }
   flag.style.transform = "translate("+x+"px,"+y+"px)";
 }
 function fillNow(){
@@ -523,7 +716,9 @@ function fillNow(){
   var g = goals(state.way), box = document.getElementById("goals");
   box.innerHTML = "";
   box.appendChild(el("em",null, w ? "Цели, "+w.title.toLowerCase()+": " : "Цели: "));
-  box.appendChild(el("b",null, !w ? "не выбраны" : (g.length ? g.map(function(id){ return dirBy(id).title; }).join(", ") : "пока нет")));
+  var specN = markedSpecs().length;
+  var names = g.map(function(id){ return dirBy(id).title; }).join(", ");
+  box.appendChild(el("b",null, !w ? "не выбраны" : (g.length ? names+(specN ? " · "+specN+" "+specWord(specN) : "") : "пока нет")));
   placeFlag(task.at);
 }
 
@@ -632,7 +827,10 @@ function fillSheet(){
   else if(k==="subjects") subjectsSheet(box);
   else if(k==="gate") gateSheet(box);
   else if(k==="boss") bossSheet(box);
-  else if(k==="dir") dirSheet(box, sheet.id);
+  else if(k==="dirs") dirsSheet(box);
+  else if(k==="specs") specsSheet(box);
+  else if(k==="progs") progsSheet(box);
+  else if(k==="post") postSheet(box);
   else if(k==="chest") chestSheet(box);
   else if(k==="menu") menuSheet(box);
   box.appendChild(button("btn","Закрыть", closeSheet));
@@ -640,7 +838,7 @@ function fillSheet(){
 
 function stoneSheet(box){
   box.appendChild(el("h2","px","Камень"));
-  box.appendChild(el("p","lead", t("Налево пойдёшь — по предметам. Прямо — автоматически. Направо — тест. От выбора зависят цели в городе.")));
+  box.appendChild(el("p","lead", t("Налево пойдёшь — по предметам. Прямо — автоматически. Направо — тест. От выбора зависят цели на реке.")));
   WAYS.forEach(function(w){
     var isA = w.id===state.way, g = goals(w.id);
     var o = el("button","opt frame"+(isA?" on":""));
@@ -802,24 +1000,80 @@ function bossSheet(box){
     }));
   });
 }
-function dirSheet(box, id){
-  var d = dirBy(id), set = examSet(), lit = goals(state.way).indexOf(id)>=0;
-  box.appendChild(el("h2","px", d.title));
-  box.appendChild(el("p","lead", t((lit ? "Цель. " : "")+(set.length>=3 ? "Твои экзамены: "+holeText(d,set)+"." : "Экзамены пока не выбраны."))));
-  box.appendChild(el("p",null, t(d.about)));
-  d.reels.forEach(function(text){
-    var o = el("div","opt frame");
-    o.appendChild(el("b",null,"Фрагмент дня"));
-    o.appendChild(el("span",null, t(text)));
+function dirsSheet(box){
+  var g = goals(state.way), set = examSet();
+  box.appendChild(el("h2","px","Направления"));
+  box.appendChild(el("p","lead", t(!state.way ? "Цели появятся, когда выберешь способ у камня." : (g.length ? "Золотом отмечены цели выбранного способа." : "Этим способом целей пока нет."))));
+  DIRS.forEach(function(d){
+    var lit = g.indexOf(d.id)>=0;
+    var o = el("button","opt frame"+(lit?" on":""));
+    o.type = "button";
+    o.appendChild(el("b",null, d.title+(lit?", цель":"")));
+    o.appendChild(el("span",null, t(set.length>=3 ? holeText(d,set)+"." : d.about)));
+    o.addEventListener("click", function(){ sheet.id = sheet.id===d.id ? null : d.id; fillSheet(); });
+    box.appendChild(o);
+    if(sheet.id!==d.id) return;
+    d.reels.forEach(function(text){
+      var reel = el("div","opt frame");
+      reel.appendChild(el("b",null,"Фрагмент дня"));
+      reel.appendChild(el("span",null, t(text)));
+      box.appendChild(reel);
+    });
+    if(!state.sealed && !cover(d,set).open) box.appendChild(button("btn","Взять набор под «"+d.title+"»", function(){
+      state.exam.slots = setFor(d); render();
+    }));
+  });
+}
+function specsSheet(box){
+  var list = goalSpecs();
+  box.appendChild(el("h2","px","Специальности"));
+  if(!list.length){
+    box.appendChild(el("p","lead", t("Сначала появятся цели. Специальность уточняет направление до экзаменов.")));
+    return;
+  }
+  box.appendChild(el("p","lead", t("Отметь, что хочешь уточнить. Это интерес, не место учёбы.")));
+  list.forEach(function(item){
+    var on = state.specs.indexOf(item.spec.id)>=0;
+    var o = el("button","opt frame"+(on?" on":""));
+    o.type = "button";
+    o.setAttribute("aria-pressed", on ? "true" : "false");
+    o.appendChild(el("b",null, item.spec.title+(on?", интересно":"")));
+    o.appendChild(el("span",null, item.dir.title));
+    o.addEventListener("click", function(){
+      if(on) state.specs = state.specs.filter(function(id){ return id!==item.spec.id; });
+      else state.specs.push(item.spec.id);
+      render();
+    });
     box.appendChild(o);
   });
-  box.appendChild(button("btn", state.starred[id] ? "Интересно, отмечено" : "Отметить как интересное", function(){
-    state.starred[id] = !state.starred[id];
-    fillSheet();
-  }));
-  if(!state.sealed && !cover(d,set).open) box.appendChild(button("btn","Взять набор под «"+d.title+"»", function(){
-    state.exam.slots = setFor(d); render();
-  }));
+}
+function progsSheet(box){
+  box.appendChild(el("h2","px","Программы"));
+  if(!programsOpen()){
+    box.appendChild(el("p","lead", t(state.sealed ? "Сначала отметь специальности на реке." : "Программы появляются после 1 февраля, когда предметы объявлены.")));
+    return;
+  }
+  box.appendChild(el("p","lead", t("Пример, не данные приёма. Открыто значит набор экзаменов совпал.")));
+  progList().forEach(function(item){
+    var on = state.program===item.program.id;
+    var o = el("button","opt frame"+(on?" on":""));
+    o.type = "button";
+    o.appendChild(el("b",null, item.program.title+(on?", выбрана":"")));
+    o.appendChild(el("span",null, t(item.spec.title+". "+needText(item.program.need, item.dir.dvi)+".")));
+    o.addEventListener("click", function(){ state.program = item.program.id; render(); });
+    box.appendChild(o);
+  });
+}
+function postSheet(box){
+  var p = activeProgram();
+  box.appendChild(el("h2","px","Поступление"));
+  if(!p){
+    box.appendChild(el("p","lead", t("Программа ещё не выбрана. Она появляется на реке после печати.")));
+    return;
+  }
+  box.appendChild(el("p","lead", t(p.program.title+". "+p.spec.title+", "+p.dir.title+".")));
+  box.appendChild(el("p",null, t(needText(p.program.need, p.dir.dvi)+".")));
+  box.appendChild(el("p",null, t("Подача в июне и июле. Согласие на зачисление подаётся в срок этого года. Пропуск срока необратим.")));
 }
 function chestSheet(box){
   box.appendChild(el("h2","px","Допы"));
@@ -846,17 +1100,31 @@ var SCENES = [
   {title:"Автоматически", text:"Цели по сильным пробникам: обществознание и математика.", set:function(s){
     s.way = "auto";
   }},
-  {title:"После 1 февраля", text:"Предметы объявлены, печать стоит.", set:function(s){
+  {title:"Специальности отмечены", text:"Две специальности в IT. Порог есть, печать ещё нет.", set:function(s){
+    s.way = "subj"; s.exam = {slots:["rus","math","inf",null], goal:80};
+    s.specs = ["it-se","it-app"];
+  }},
+  {title:"После 1 февраля", text:"Печать стоит, специальность отмечена, по информатике не хватает.", set:function(s){
     s.way = "subj"; s.exam = {slots:["rus","math","inf",null], goal:80}; s.sealed = true; s.have.ege = true;
+    s.specs = ["it-se"];
     s.scores.inf = {now:70, prev:null, when:"январь"};
   }},
-  {title:"Порог достигнут", text:"Все пробники выше порога.", set:function(s){
+  {title:"Порог достигнут", text:"Пробники выше порога. Специальность отмечена, программа не выбрана.", set:function(s){
     s.way = "subj"; s.exam = {slots:["rus","math","inf",null], goal:75}; s.sealed = true; s.have.ege = true;
+    s.specs = ["it-se"];
+    s.scores.math = {now:80, prev:72, when:"октябрь"};
+    s.scores.inf = {now:82, prev:null, when:"октябрь"};
+  }},
+  {title:"Программа выбрана, печать стоит", text:"Объявлены предметы, выбрана программная инженерия.", set:function(s){
+    s.way = "subj"; s.exam = {slots:["rus","math","inf",null], goal:75}; s.sealed = true; s.have.ege = true;
+    s.specs = ["it-se"]; s.program = "it-se-a";
     s.scores.math = {now:80, prev:72, when:"октябрь"};
     s.scores.inf = {now:82, prev:null, when:"октябрь"};
   }}
 ];
 function loadScene(i){
+  if(riverTimer){ clearInterval(riverTimer); riverTimer = null; }
+  riverShown = {dirs:0, specs:0, progs:0, mouth:0};
   state = fresh();
   SCENES[i].set(state);
   anim = {id:null, n:0};
@@ -880,6 +1148,7 @@ function menuSheet(box){
 }
 
 function render(){
+  syncRiver();
   draw();
   placeNodes();
   fillNow();
