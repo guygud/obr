@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Планер · Мой план</title>
+<meta name="description" content="Тёмный прототип планера и карточки события. Три набора: 9 класс зима, 10 класс октябрь, 11 класс июнь.">
+<style>
+/* Теги. «Срок» и «Предметы» покрашены как в макете.
+   Остальные — оттенки той же тёмной схемы, сверить с палитрой макета:
+   Разговор зелёный, Ждём серый, Отсев фиолетовый, Списки голубой,
+   Деньги и Олимпиада золотые, Вуз как Предметы, Документы нейтральный. */
+:root{
+  --bg:#07080c;
+  --phone:#0e1016;
+  --card:#1a1e28;
+  --card-2:#161a24;
+  --line:#2a3040;
+  --text:#f4f6fb;
+  --text-2:#a7adba;
+  --text-3:#7e8696;
+  --blue:#3b74ff;
+  --green:#3ecf8e;
+  --weekend:#ff5d73;
+  --pill:#1a1e28;
+  --pill-on:#3a4154;
+  --tag-срок:#e08a3c;
+  --tag-предметы:#5b8cff;
+  --tag-разговор:#3ecf8e;
+  --tag-ждём:#8b93a7;
+  --tag-отсев:#b08cff;
+  --tag-списки:#5ec8e0;
+  --tag-деньги:#e0b05a;
+  --tag-вуз:#5b8cff;
+  --tag-документы:#aeb6c6;
+  --tag-олимпиада:#e0b05a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:16px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.stage{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 16px 32px}
+.banner{width:min(390px,100%);margin-bottom:12px}
+.banner p{margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--text-3)}
+.segs{display:flex;flex-direction:column;gap:8px}
+.seg{display:flex;padding:3px;background:var(--pill);border:1px solid var(--line);border-radius:999px}
+.seg button{flex:1;border:0;background:transparent;border-radius:999px;padding:6px 8px;font-size:13px;color:var(--text-2)}
+.seg button.on{background:var(--pill-on);color:var(--text);font-weight:650}
+.phone{position:relative;width:390px;height:844px;background:var(--phone);border:1px solid #222838;border-radius:32px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+.scroll{height:100%;overflow:auto;padding:14px 0 96px}
+.phone.event .scroll{padding-bottom:28px}
+.phone.event .tabs{display:none}
+.scroll::-webkit-scrollbar{width:0}
+.switch{display:flex;margin:0 16px 14px;padding:4px;background:#141824;border-radius:14px}
+.switch button{flex:1;border:0;background:transparent;color:#c5cad6;border-radius:11px;padding:8px;font-size:15px}
+.switch button.on{background:#3a4154;color:#fff;font-weight:650}
+.carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 16px 6px;scrollbar-width:none}
+.carousel::-webkit-scrollbar{display:none}
+.plan{position:relative;flex:0 0 86%;scroll-snap-align:start;background:var(--card);border-radius:18px;padding:14px 16px 16px}
+.plan.skipped h2,.plan.skipped .sub{opacity:.45}
+.plan.skipped h2{text-decoration:line-through}
+.eye{margin:0 72px 8px 0;font-size:13px;color:var(--text-2)}
+.plan h2{margin:0 0 6px;font-size:26px;line-height:1.15;font-weight:720;letter-spacing:-.02em}
+.sub{margin:0;color:var(--text-2);font-size:15px}
+.dashes{position:absolute;top:16px;right:14px;display:flex;gap:4px}
+.dashes i{width:14px;height:4px;border-radius:2px;background:#343b4d}
+.dashes i.on{background:var(--green)}
+.btns{display:flex;gap:8px;margin-top:14px}
+.btn{border:0;background:var(--blue);color:#fff;border-radius:999px;padding:10px 16px;font-weight:650;font-size:15px}
+.btn.ghost{background:#2a3142;color:var(--text)}
+.btn:disabled{opacity:.45}
+.btn.wide{width:100%;border-radius:14px;padding:14px 16px;font-size:16px}
+.month{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px}
+.month h2{margin:0;font-size:32px;font-weight:720;letter-spacing:-.03em}
+.month .nav{display:flex;gap:8px}
+.round{width:36px;height:36px;border-radius:50%;border:0;background:#1c2230;color:var(--text);display:grid;place-items:center;padding:0}
+.round svg,.cond svg,.why svg,.tabs svg{width:20px;height:20px;display:block}
+.days{display:grid;grid-template-columns:repeat(7,1fr);padding:6px 10px 4px}
+.day{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0;color:#d7dbe6}
+.day .wd{font-size:12px;color:var(--text-2);text-transform:lowercase}
+.day.we .wd{color:var(--weekend)}
+.day.on .wd{color:#fff}
+.day .num{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#171b26;font-weight:680}
+.day.on .num{background:var(--blue);color:#fff}
+.dot{width:4px;height:4px;border-radius:50%;background:transparent}
+.day.has .dot{background:var(--blue)}
+.day.on.has .dot{background:#fff}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 16px 10px}
+.dayhead h3{margin:0;font-size:20px;font-weight:700}
+.dayhead span{color:var(--text-3);font-size:14px;white-space:nowrap}
+.tasks{padding:0 16px}
+.task{display:grid;grid-template-columns:68px 1fr;gap:8px;width:100%;text-align:left;background:none;border:0;color:inherit;padding:0;margin:0 0 10px}
+.when{padding-top:12px;font-size:13px;color:var(--text-2)}
+.when b{display:block;font-weight:650;color:var(--text)}
+.tcard{display:block;background:var(--card);border-radius:16px;padding:12px 14px 12px 12px;border-left:3px solid var(--tag,var(--blue))}
+.tcard b{display:block;font-size:16px;line-height:1.3;font-weight:680}
+.tcard span{display:block;margin-top:4px;font-size:14px;color:var(--text-2)}
+.tag{display:inline-block;margin-top:8px;padding:3px 8px;border-radius:999px;font-size:12px;font-style:normal;background:color-mix(in srgb,var(--tag) 22%,transparent);color:var(--tag)}
+.task.wait .tcard{opacity:.8}
+.empty{margin:8px 16px;padding:22px 16px;background:var(--card);border-radius:16px;text-align:center}
+.empty p{margin:0 0 14px;color:var(--text-2)}
+.ebar{display:flex;padding:4px 12px 0}
+.ek{margin:8px 16px 0;font-size:13px;color:var(--text-2)}
+.event h1{margin:8px 16px 12px;font-size:30px;line-height:1.15;font-weight:740;letter-spacing:-.03em}
+.plate{display:flex;gap:14px;align-items:center;margin:0 16px 8px;padding:14px 16px;border-radius:18px;background:linear-gradient(100deg,#2f6bff 0%,#6a4dff 58%,#8a5cff 100%);color:#fff}
+.plate.wait{background:#232838}
+.plate.past{background:#2a2228}
+.badge{flex:0 0 52px;text-align:center}
+.badge b{display:block;font-size:32px;line-height:1;font-weight:740}
+.badge span{font-size:13px;opacity:.9}
+.plate > div b{display:block;font-size:18px;font-weight:720}
+.plate > div span{display:block;margin-top:2px;font-size:14px;opacity:.92}
+.conds{margin:8px 16px}
+.cond{display:flex;gap:12px;align-items:flex-start;padding:10px 0}
+.cond svg{flex:0 0 22px;color:var(--text-3);margin-top:1px}
+.cond b{display:block;font-weight:650}
+.cond span{display:block;margin-top:2px;color:var(--text-2);font-size:14px}
+.why{margin:8px 16px 0;padding:14px 16px;background:var(--card-2);border-radius:16px}
+.why h3{margin:0 0 10px;font-size:16px}
+.why ul{list-style:none;margin:0;padding:0}
+.why li{display:flex;gap:8px;align-items:flex-start;margin:0 0 8px}
+.why li:last-child{margin:0}
+.why svg{flex:0 0 20px;color:var(--green);margin-top:1px}
+.foot{display:flex;justify-content:space-between;gap:12px;margin:16px 16px 8px;padding-top:12px;border-top:1px solid var(--line);color:var(--text-2);font-size:14px}
+.event .btn.wide{margin:0 16px;width:calc(100% - 32px)}
+.flash{margin:12px 16px 0;font-size:13px;color:var(--text-2)}
+.tabs{position:absolute;left:16px;right:16px;bottom:14px;display:flex;background:rgba(22,26,36,.92);border:1px solid var(--line);border-radius:22px;padding:8px 0 6px;backdrop-filter:blur(12px)}
+.tabs button{flex:1;border:0;background:transparent;color:var(--text-3);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabs button.on{color:#fff}
+@media (max-width:480px){
+  .stage{padding:0}
+  .banner{width:100%;padding:12px 12px 0}
+  .phone{width:100%;height:100dvh;border:0;border-radius:0}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="banner" id="banner"></div>
+  <div class="phone">
+    <div class="scroll" id="app"></div>
+    <nav class="tabs" id="tabs"></nav>
+  </div>
+</div>
+<script>
+function typo(s){
+  if (typeof s !== "string") return s;
+  s = s.replaceAll(" — ", "\u00a0— ");
+  s = s.replaceAll("им. Баумана", "им.\u00a0Баумана");
+  s = s.replaceAll("м. Бауманская", "м.\u00a0Бауманская");
+  s = s.replaceAll("Н. Э. ", "Н.\u00a0Э.\u00a0");
+  for (let i = 0; i < 4; i++){
+    const n = s.replace(/(^|[\s\u00a0(«])([ВвКкСсУуОоАаИиЯя]) /g, (m, a, b) => a + b + "\u00a0");
+    if (n === s) break;
+    s = n;
+  }
+  return s;
+}
+function walk(v){
+  if (typeof v === "string") return typo(v);
+  if (Array.isArray(v)) return v.map(walk);
+  if (v && typeof v === "object"){
+    const o = {};
+    for (const k of Object.keys(v)) o[k] = walk(v[k]);
+    return o;
+  }
+  return v;
+}
+function indexSet(set){
+  set.tasks.forEach(t => { t.key = t.day + "|" + t.title; });
+  return set;
+}
+
+const WEEK = {пн:"Понедельник", вт:"Вторник", ср:"Среда", чт:"Четверг", пт:"Пятница", сб:"Суббота", вс:"Воскресенье"};
+const GEN = {Январь:"января", Октябрь:"октября", Июнь:"июня"};
+const TAGS = {
+  "Срок":"#e08a3c", "Предметы":"#5b8cff", "Разговор":"#3ecf8e", "Ждём":"#8b93a7",
+  "Отсев":"#b08cff", "Списки":"#5ec8e0", "Деньги":"#e0b05a", "Вуз":"#5b8cff",
+  "Документы":"#aeb6c6", "Олимпиада":"#e0b05a"
+};
+const NOTE = typo("Прототип планера. Строки из контента «Мой план». «Карта», «Лента» и «Портфель» — оболочка макета, в документах этих разделов нет.");
+
+const SETS = walk([
+  {
+    id:"9 зима", month:"Январь", selected:14,
+    empty:"Сегодня дел нет. Ближайшее решение — весной, выбор профиля.",
+    plans:[
+      {n:"1", step:"1 из 3", title:"Отсечь лишнее", sub:"Причина своими словами", b1:"Написать", b2:"Позже", task:"Назови, куда точно не пойдёшь"},
+      {n:"2", step:"ждём", title:"Муниципальный этап", sub:"Списки школы не вышли", b1:"Открыть", b2:"Скрыть", event:"set"}
+    ],
+    days:[["пн",11],["вт",12],["ср",13],["чт",14],["пт",15],["сб",16],["вс",17]].map(([wd,n]) => ({wd, n})),
+    tasks:[
+      {day:14, when:"до весны", dur:"", title:"Назови, куда точно не пойдёшь", source:"Весна · не вернуть", tag:"Отсев", state:"активно"},
+      {day:16, when:"ждём", dur:"", title:"Запись на муниципальный этап", source:"Ждём списков школы", tag:"Ждём", state:"ждём", event:"set"}
+    ],
+    event:{
+      state:"ждём", kicker:"План №2 · Шаг 1 из 2", title:"Запись на муниципальный этап",
+      day:"—", month:"ждём", soon:"Списки школы не вышли", close:"Напишем, когда появятся",
+      rows:[["Срок откроет школа","Пока списка нет, даты нет"],["Твоя школа","Куда нести — в списке школы"],["Математика","Предмет назвал ты в сентябре"]],
+      why:["Школьный этап уже позади, диплома нет","Муниципальный — следующий переход той же отсечки","Предмет можно сменить до регистрации"],
+      foot:"За запись +15 камней", button:"Открыть календарь"
+    }
+  },
+  {
+    id:"10 октябрь", month:"Октябрь", selected:23,
+    empty:"Сегодня дел нет. Ближайший срок — 25 октября.",
+    plans:[
+      {n:"1", step:"2 из 4", title:"Посетить МГТУ", sub:"1 ноября — день открытых дверей", b1:"Записаться", b2:"Пропустить", event:"set"},
+      {n:"2", step:"1 из 3", title:"Закрыть разрыв", sub:"Математика · разрыв 18 баллов", b1:"Начать", b2:"Позже", task:"Пробник по профильной математике"},
+      {n:"3", step:"1 из 2", title:"Заявление на ЕГЭ", sub:"До 1 февраля, в школе", b1:"Открыть", b2:"Позже"}
+    ],
+    days:[["пн",19],["вт",20],["ср",21],["чт",22],["пт",23],["сб",24],["вс",25]].map(([wd,n]) => ({wd, n})),
+    tasks:[
+      {day:20, when:"17:00", dur:"10 мин", title:"Разбери ошибки из прошлых задач", source:"Математика · разрыв 18 баллов", tag:"Предметы", state:"активно"},
+      {day:22, when:"19:00", dur:"40 мин", title:"Реши часть варианта на время", source:"Онлайн · формат ЕГЭ 2027", tag:"Предметы", state:"активно"},
+      {day:23, when:"до 25 окт", dur:"", title:"Запись на день открытых дверей", source:"МГТУ · источник: bmstu.ru, 14 окт", tag:"Срок", state:"активно", event:"set"},
+      {day:23, when:"16:00", dur:"4 ч", title:"Пробник по профильной математике", source:"Онлайн · формат ЕГЭ 2027", tag:"Предметы", state:"активно"},
+      {day:23, when:"18:30", dur:"20 мин", title:"Разговор со студенткой", source:"МТУСИ · информационная безопасность", tag:"Разговор", state:"активно"},
+      {day:25, when:"сегодня", dur:"", title:"Запись на день открытых дверей", source:"МГТУ · источник: bmstu.ru, 14 окт", tag:"Срок", state:"активно", event:"set"}
+    ],
+    event:{
+      state:"запись открыта", kicker:"План №1 · Шаг 3 из 4", title:"День открытых дверей МГТУ им. Баумана",
+      day:"1", month:"ноя", soon:"Через 9 дней", close:"Запись закроется 25 октября",
+      rows:[["Воскресенье, 12:00–16:00","Можно прийти к любому часу"],["2-я Бауманская, 5","Москва · м. Бауманская, 10 мин"],["Бесплатно","Нужна запись, можно с родителем"]],
+      why:["Предметы сходятся: математика, физика, информатика","Есть направление «Информационная безопасность»","Это день открытых дверей, не выбор за тебя"],
+      foot:"За посещение +30 камней", button:"Записаться"
+    }
+  },
+  {
+    id:"11 июнь", month:"Июнь", selected:22,
+    empty:"Сегодня дел нет. Ближайший срок — последний день приёма.",
+    plans:[
+      {n:"1", step:"2 из 3", title:"Приоритеты", sub:"До последнего дня приёма", b1:"Сверить", b2:"Позже", event:"set"},
+      {n:"2", step:"1 из 3", title:"Согласие", sub:"Срок этого года ещё впереди", b1:"Открыть", b2:"Позже", task:"Запиши срок согласия этого года и отзыв"},
+      {n:"3", step:"3 из 3", title:"Документы", sub:"Комплект по вузам собран", b1:"Готово", b2:"Скрыть"}
+    ],
+    days:[["пн",21],["вт",22],["ср",23],["чт",24],["пт",25],["сб",26],["вс",27]].map(([wd,n]) => ({wd, n})),
+    tasks:[
+      {day:22, when:"10:00", dur:"20 мин", title:"Сверь строку в конкурсном списке", source:"МТУСИ · список вуза, сегодня", tag:"Списки", state:"активно"},
+      {day:22, when:"до конца окна", dur:"", title:"Подтверди порядок приоритетов", source:"Госуслуги · можно менять", tag:"Срок", state:"активно", event:"set"},
+      {day:22, when:"19:00", dur:"15 мин", title:"Сверь оба плана Б", source:"Бюджет в другом и платное здесь", tag:"Деньги", state:"активно"},
+      {day:25, when:"впереди", dur:"", title:"Запиши срок согласия этого года и отзыв", source:"Дата из правил вуза", tag:"Срок", state:"активно"}
+    ],
+    event:{
+      state:"можно менять", kicker:"План №1 · Шаг 2 из 3", title:"Приоритеты в заявлении на Госуслугах",
+      day:"—", month:"окно", soon:"Приоритеты ещё можно менять", close:"Конец срока — в правилах вуза",
+      rows:[["До последнего дня приёма","Порядок называешь ты"],["Госуслуги","Заявление уже отправлено"],["Два вуза в списке","МГТУ им. Баумана и МТУСИ"]],
+      why:["Порядок мы не подставляем, его называешь ты","Оба плана Б лежат рядом: бюджет там и платное здесь","Согласие — следующая земля, срок этого года впереди"],
+      foot:"За сверку +15 камней", button:"Сверить"
+    }
+  }
+]).map(indexSet);
+
+const LIMIT = (() => {
+  const oct = structuredClone(SETS.find(s => s.id === "10 октябрь"));
+  oct.id = "предел";
+  oct.plans[0].title = typo("Муниципальный этап");
+  const prob = oct.tasks.find(t => t.title.startsWith("Пробник"));
+  prob.tag = "Олимпиада";
+  prob.source = typo("МГТУ · источник: bmstu.ru, 14 окт");
+  return indexSet(oct);
+})();
+
+const EDGE = indexSet(walk({
+  id:"край", month:"Октябрь", selected:23,
+  empty:"Сегодня дел нет. Ближайшее решение — через 14 месяцев.",
+  plans:[
+    {n:"2", step:"1 из 2", title:"Школьный этап", sub:"Попытки в этом сентябре нет", b1:"Открыть календарь", b2:"Скрыть", event:"set"}
+  ],
+  days:[["пн",19],["вт",20],["ср",21],["чт",22],["пт",23],["сб",24],["вс",25]].map(([wd,n]) => ({wd, n})),
+  tasks:[
+    {day:23, when:"16:00", dur:"4 ч 30 мин", title:"Информационная безопасность автоматизированных систем", source:"Московский государственный технический университет имени Н. Э. Баумана", tag:"Предметы и ещё", state:"активно", event:"set"}
+  ],
+  event:{
+    state:"срок прошёл", kicker:"План №2 · Шаг 1 из 2", title:"Школьный этап ВсОШ уже закрыт в этом году",
+    day:"—", month:"прошёл", soon:"Попытки в этом сентябре нет", close:"Следующий школьный этап — в сентябре следующего года",
+    rows:[
+      ["Сентябрь следующего года","В этом сентябре попытки нет"],
+      ["Московский государственный технический университет имени Н. Э. Баумана","Информационная безопасность автоматизированных систем"],
+      ["Не вернуть","Диплом этого года не появится"]
+    ],
+    why:["Школьный этап закрыт","Следующий шанс — сентябрь следующего года","Предметы, которые ты называл, сохраняются"],
+    foot:"Награды за закрытый срок нет", button:"Открыть календарь"
+  }
+}));
+
+const S = {setId:"10 октябрь", mode:"норма", day:null, screen:"planer", opened:null, skipped:{}, flash:""};
+
+function current(){
+  if (S.mode === "предел") return LIMIT;
+  if (S.mode === "край") return EDGE;
+  return SETS.find(s => s.id === S.setId);
+}
+function selDay(view){ return S.day == null ? view.selected : S.day; }
+function deeds(n){
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return n + " дело";
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return n + " дела";
+  return n + " дел";
+}
+function esc(s){
+  return String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+}
+function icon(name){
+  const d = {
+    back:'<path d="M15 5 8 12l7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    chevL:'<path d="M14 6 8 12l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    chevR:'<path d="M10 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    cal:'<rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+    pin:'<path d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="11" r="2.1" fill="currentColor"/>',
+    ticket:'<path d="M4 8.5A2 2 0 0 1 6 6.5h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4v-2z" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+    check:'<path d="M5 12.5 9.2 16.5 19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+    feed:'<path d="M5 7h14M5 12h14M5 17h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    plan:'<circle cx="12" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6.5 19c1.2-2.4 3.1-3.5 5.5-3.5s4.3 1.1 5.5 3.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
+    port:'<path d="M4 8h6l2 2h8v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>'
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${d[name]}</svg>`;
+}
+function dashes(step){
+  const m = /^(\d+) из (\d+)$/.exec(step);
+  if (!m) return "";
+  const cur = Number(m[1]), total = Number(m[2]);
+  let html = "";
+  for (let i = 1; i <= total; i++) html += `<i class="${i <= cur ? "on" : ""}"></i>`;
+  return `<span class="dashes">${html}</span>`;
+}
+
+function renderBanner(){
+  const setBtns = SETS.map(s => {
+    const on = S.mode === "норма" && S.setId === s.id;
+    const dis = S.mode === "норма" ? "" : "disabled";
+    return `<button type="button" class="${on ? "on" : ""}" data-act="set" data-id="${esc(s.id)}" ${dis}>${esc(s.id)}</button>`;
+  }).join("");
+  const modes = ["норма","предел","край"].map(m =>
+    `<button type="button" class="${S.mode === m ? "on" : ""}" data-act="mode" data-mode="${m}">${m}</button>`
+  ).join("");
+  document.getElementById("banner").innerHTML =
+    `<p>${esc(NOTE)}</p><div class="segs"><div class="seg" role="group" aria-label="Набор">${setBtns}</div><div class="seg" role="group" aria-label="Длина строк">${modes}</div></div>`;
+}
+
+function renderPlaner(view){
+  const day = selDay(view);
+  const meta = view.days.find(d => d.n === day);
+  const list = view.tasks.filter(t => t.day === day);
+  const off = S.mode !== "норма" ? "disabled" : "";
+  const plans = view.plans.map((p, i) => {
+    const skipped = S.skipped[view.id + "|" + p.n];
+    const done = p.b1 === "Готово";
+    return `<article class="plan${skipped ? " skipped" : ""}">
+      <p class="eye">План №${esc(p.n)} · ${esc(p.step)}</p>
+      ${dashes(p.step)}
+      <h2>${esc(p.title)}</h2>
+      <p class="sub">${esc(p.sub)}</p>
+      <div class="btns">
+        <button type="button" class="btn" data-act="plan" data-i="${i}" data-btn="1" ${done ? "disabled" : ""}>${esc(p.b1)}</button>
+        <button type="button" class="btn ghost" data-act="plan" data-i="${i}" data-btn="2" aria-pressed="${skipped ? "true" : "false"}">${esc(p.b2)}</button>
+      </div>
+    </article>`;
+  }).join("");
+  const days = view.days.map(d => {
+    const has = view.tasks.some(t => t.day === d.n);
+    const cls = ["day", (d.wd === "сб" || d.wd === "вс") ? "we" : "", d.n === day ? "on" : "", has ? "has" : ""].filter(Boolean).join(" ");
+    return `<button type="button" class="${cls}" data-act="day" data-day="${d.n}"${d.n === day ? " aria-current=\"date\"" : ""}><span class="wd">${d.wd}</span><span class="num">${d.n}</span><i class="dot"></i></button>`;
+  }).join("");
+  const body = list.length
+    ? `<div class="tasks">${list.map(taskCard).join("")}</div>`
+    : `<div class="empty"><p>${esc(view.empty)}</p><button type="button" class="btn" data-act="map">Открыть карту</button></div>`;
+  return `<div class="switch" role="tablist" aria-label="Раздел макета">
+      <button type="button" data-act="tab" data-tab="map">Карта</button>
+      <button type="button" class="on" data-act="tab" data-tab="planer">Планер</button>
+    </div>
+    <div class="carousel">${plans}</div>
+    <div class="month"><h2>${esc(view.month)}</h2><div class="nav">
+      <button type="button" class="round" data-act="month" data-dir="-1" ${off} aria-label="Предыдущий месяц">${icon("chevL")}</button>
+      <button type="button" class="round" data-act="month" data-dir="1" ${off} aria-label="Следующий месяц">${icon("chevR")}</button>
+    </div></div>
+    <div class="days">${days}</div>
+    <div class="dayhead"><h3>${esc(WEEK[meta.wd] + ", " + meta.n + " " + GEN[view.month])}</h3><span>${esc(deeds(list.length))}</span></div>
+    ${body}
+    ${S.flash ? `<p class="flash">${esc(S.flash)}</p>` : ""}`;
+}
+function taskCard(t){
+  const color = TAGS[t.tag] || "#5b8cff";
+  return `<button type="button" class="task${t.state === "ждём" ? " wait" : ""}" data-act="task" data-key="${esc(t.key)}" style="--tag:${color}">
+    <span class="when"><b>${esc(t.when)}</b>${t.dur ? `<span>${esc(t.dur)}</span>` : ""}</span>
+    <span class="tcard"><b>${esc(t.title)}</b><span>${esc(t.source)}</span><i class="tag">${esc(t.tag)}</i></span>
+  </button>`;
+}
+
+function specOf(view){
+  const o = S.opened;
+  if (!o) return null;
+  if (o.kind === "set") return {ev: view.event, off: view.event.state === "ждём"};
+  if (o.kind === "task"){
+    const task = view.tasks.find(t => t.key === o.key);
+    const plan = view.plans.find(p => p.task === task.title);
+    const soon = task.dur ? task.when : task.when;
+    const ev = {
+      state: task.state === "ждём" ? "ждём" : "запись открыта",
+      kicker: plan ? `План №${plan.n} · ${plan.step}` : "",
+      title: task.title,
+      day:"", month:"",
+      soon: task.when,
+      close: task.dur || task.source,
+      rows: task.dur ? [[task.when + ", " + task.dur, ""], [task.source, ""]] : [[task.source, ""]],
+      why: [],
+      foot: "",
+      button: plan ? plan.b1 : "Открыть"
+    };
+    return {ev, off: task.state === "ждём" || ev.button === "Готово"};
+  }
+  const plan = view.plans[o.i];
+  return {ev:{
+    state: plan.step === "ждём" ? "ждём" : "запись открыта",
+    kicker:`План №${plan.n} · ${plan.step}`,
+    title: plan.title, day:"", month:"", soon: plan.sub, close:"",
+    rows:[], why:[], foot:"", button: plan.b1
+  }, off: plan.step === "ждём" || plan.b1 === "Готово"};
+}
+function renderEvent(view){
+  const {ev, off} = specOf(view);
+  const plateCls = ev.state === "ждём" ? "wait" : ev.state === "срок прошёл" ? "past" : "";
+  const badge = ev.day && ev.day !== "—" ? `<div class="badge"><b>${esc(ev.day)}</b><span>${esc(ev.month)}</span></div>` : "";
+  const icons = ["cal","pin","ticket"];
+  const rows = (ev.rows || []).map((r, i) => `<div class="cond">${icon(icons[i] || "cal")}<div><b>${esc(r[0])}</b>${r[1] ? `<span>${esc(r[1])}</span>` : ""}</div></div>`).join("");
+  const why = ev.why && ev.why.length
+    ? `<section class="why"><h3>Почему тебе</h3><ul>${ev.why.map(w => `<li>${icon("check")}<span>${esc(w)}</span></li>`).join("")}</ul></section>`
+    : "";
+  const foot = ev.foot ? `<div class="foot"><span>${esc(ev.foot)}</span></div>` : "";
+  return `<div class="event">
+    <div class="ebar"><button type="button" class="round" data-act="back" aria-label="Назад">${icon("back")}</button></div>
+    ${ev.kicker ? `<p class="ek">${esc(ev.kicker)}</p>` : ""}
+    <h1>${esc(ev.title)}</h1>
+    <div class="plate ${plateCls}">${badge}<div><b>${esc(ev.soon)}</b>${ev.close ? `<span>${esc(ev.close)}</span>` : ""}</div></div>
+    ${rows ? `<div class="conds">${rows}</div>` : ""}
+    ${why}
+    ${foot}
+    <button type="button" class="btn wide" data-act="eventbtn" ${off ? "disabled" : ""}>${esc(ev.button)}</button>
+    ${S.flash ? `<p class="flash">${esc(S.flash)}</p>` : ""}
+  </div>`;
+}
+
+function renderTabs(){
+  const items = [["feed","Лента"],["plan","Мой план"],["port","Портфель"]];
+  document.getElementById("tabs").innerHTML = items.map(([id, label]) =>
+    `<button type="button" class="${id === "plan" ? "on" : ""}" data-act="tab" data-tab="${id}">${icon(id)}<span>${label}</span></button>`
+  ).join("");
+}
+function render(){
+  const view = current();
+  const eventOn = S.screen === "event" && S.opened;
+  document.querySelector(".phone").classList.toggle("event", !!eventOn);
+  renderBanner();
+  document.getElementById("app").innerHTML = eventOn ? renderEvent(view) : renderPlaner(view);
+  renderTabs();
+}
+
+document.body.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act]");
+  if (!el || el.disabled) return;
+  const view = current();
+  const act = el.dataset.act;
+  if (act === "set"){
+    S.setId = el.dataset.id; S.day = null; S.screen = "planer"; S.opened = null; S.flash = "";
+  } else if (act === "mode"){
+    S.mode = el.dataset.mode; S.day = null; S.screen = "planer"; S.opened = null; S.flash = ""; S.skipped = {};
+  } else if (act === "month"){
+    const ids = SETS.map(s => s.id);
+    let i = ids.indexOf(S.setId) + Number(el.dataset.dir);
+    i = (i + ids.length) % ids.length;
+    S.setId = ids[i]; S.day = null; S.screen = "planer"; S.opened = null; S.flash = "";
+  } else if (act === "day"){
+    S.day = Number(el.dataset.day); S.screen = "planer"; S.flash = "";
+  } else if (act === "task"){
+    const task = view.tasks.find(t => t.key === el.dataset.key);
+    S.opened = task.event === "set" ? {kind:"set"} : {kind:"task", key: task.key};
+    S.screen = "event"; S.flash = "";
+  } else if (act === "plan"){
+    const i = Number(el.dataset.i);
+    const plan = view.plans[i];
+    if (el.dataset.btn === "2"){
+      const k = view.id + "|" + plan.n;
+      S.skipped[k] = !S.skipped[k];
+    } else if (plan.event === "set"){
+      S.opened = {kind:"set"}; S.screen = "event"; S.flash = "";
+    } else if (plan.task){
+      const task = view.tasks.find(t => t.title === plan.task);
+      if (!task) return;
+      S.opened = task.event === "set" ? {kind:"set"} : {kind:"task", key: task.key};
+      S.screen = "event"; S.flash = "";
+    } else {
+      S.opened = {kind:"plan", i}; S.screen = "event"; S.flash = "";
+    }
+  } else if (act === "back"){
+    S.screen = "planer"; S.flash = "";
+  } else if (act === "map" || (act === "tab" && el.dataset.tab !== "planer" && el.dataset.tab !== "plan")){
+    S.flash = typo("Этот переход в прототипе не собран.");
+  } else if (act === "tab"){
+    S.screen = "planer"; S.flash = "";
+  } else if (act === "eventbtn"){
+    S.flash = typo("Дальше этот прототип не идёт.");
+  }
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
