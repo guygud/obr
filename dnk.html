@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ДНК продукта «Подбор вуза»</title>
+<meta name="description" content="Система — наша работа. Выбор — твой. ДНК продукта для сервиса подбора вуза.">
+<style>
+:root{
+  --bg:#ffffff; --surface:#f7f7f8; --surface-2:#f0f0f2;
+  --text:#16161a; --text-2:#55555f; --text-3:#8a8a95;
+  --line:#e3e3e7; --accent:#6245c9;
+  --ok:#1a7f4b; --warn:#9a6207; --bad:#b3261e;
+  --ok-bg:#eaf6ef; --warn-bg:#fcf3e3; --bad-bg:#fbeceb; --info-bg:#eceaf8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#131316; --surface:#1a1a1f; --surface-2:#202027;
+    --text:#ececf0; --text-2:#a8a8b3; --text-3:#74747f;
+    --line:#2b2b33; --accent:#a493f0;
+    --ok:#5ec98b; --warn:#e0b05a; --bad:#ec8a84;
+    --ok-bg:#14261c; --warn-bg:#2a2113; --bad-bg:#2b1715; --info-bg:#1d1a2e;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-feature-settings:"kern";
+}
+.wrap{max-width:1080px; margin:0 auto; padding:56px 24px 96px}
+.eyebrow{font-size:13px; color:var(--text-3); letter-spacing:.01em; margin:0 0 14px}
+h1{font-size:clamp(30px,5vw,46px); line-height:1.15; letter-spacing:-.02em; margin:0 0 18px; font-weight:700}
+h1 .accent{color:var(--accent)}
+h2{font-size:23px; line-height:1.3; letter-spacing:-.01em; margin:0 0 12px; font-weight:650}
+h3{font-size:17px; line-height:1.35; margin:0 0 10px; font-weight:650}
+p{margin:0 0 12px}
+.lead{font-size:18px; color:var(--text-2); max-width:72ch}
+.muted{color:var(--text-2)}
+.small{font-size:14px}
+.tiny{font-size:13px; color:var(--text-3)}
+section{margin-top:52px}
+hr{border:0; border-top:1px solid var(--line); margin:44px 0}
+
+.stats{display:flex; flex-wrap:wrap; gap:36px; margin-top:26px}
+.stat .v{font-size:30px; font-weight:700; letter-spacing:-.02em; line-height:1.1}
+.stat .l{font-size:13px; color:var(--text-3); margin-top:3px}
+.stat.bad .v{color:var(--bad)} .stat.warn .v{color:var(--warn)} .stat.info .v{color:var(--accent)}
+
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+@media(max-width:820px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.card{border:1px solid var(--line); border-radius:10px; padding:18px; background:var(--surface)}
+.card .hd{display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin-bottom:10px}
+.card .hd b{font-size:15px; font-weight:650}
+.card .hd span{font-size:12px; color:var(--text-3); white-space:nowrap}
+
+.note{border-left:3px solid var(--line); background:var(--surface); padding:14px 16px; border-radius:0 8px 8px 0; margin:14px 0}
+.note b{display:block; margin-bottom:6px; font-weight:650}
+.note.ok{border-color:var(--ok); background:var(--ok-bg)}
+.note.warn{border-color:var(--warn); background:var(--warn-bg)}
+.note.bad{border-color:var(--bad); background:var(--bad-bg)}
+.note.info{border-color:var(--accent); background:var(--info-bg)}
+
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:10px; margin:14px 0}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:560px}
+th{text-align:left; font-weight:650; color:var(--text-2); padding:11px 14px; border-bottom:1px solid var(--line); white-space:nowrap; background:var(--surface)}
+td{padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:var(--surface)}
+td .dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:8px; vertical-align:middle}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)} .dot.info{background:var(--accent)}
+
+.pills{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0}
+.pill{border:1px solid var(--line); background:transparent; color:var(--text-2); font:inherit; font-size:13px;
+  padding:5px 13px; border-radius:999px; cursor:pointer; transition:.12s}
+.pill:hover{border-color:var(--text-3)}
+.pill[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#fff}
+@media (prefers-color-scheme: dark){.pill[aria-pressed="true"]{color:#15131f}}
+
+.layerbtns{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+@media(max-width:820px){.layerbtns{grid-template-columns:1fr}}
+.layerbtn{text-align:left; border:1px solid var(--line); background:var(--surface); border-radius:10px;
+  padding:16px; cursor:pointer; font:inherit; color:var(--text); transition:.12s}
+.layerbtn:hover{border-color:var(--text-3)}
+.layerbtn[aria-pressed="true"]{border-color:var(--accent); background:var(--info-bg)}
+.layerbtn .n{font-size:12px; color:var(--text-3); font-weight:650}
+.layerbtn[aria-pressed="true"] .n{color:var(--accent)}
+.layerbtn .t{font-size:16px; font-weight:650; margin:5px 0 4px}
+.layerbtn .k{font-size:13px; color:var(--text-3)}
+.layerbtn .r{display:inline-block; margin-top:9px; font-size:12px; border:1px solid var(--line);
+  border-radius:999px; padding:2px 10px; color:var(--text-2)}
+
+.panel{display:none; border:1px solid var(--line); border-radius:10px; padding:20px; margin-top:14px; background:var(--surface)}
+.panel.active{display:block}
+.panel .cols{display:grid; grid-template-columns:1.25fr 1fr; gap:28px; margin-top:14px}
+@media(max-width:820px){.panel .cols{grid-template-columns:1fr; gap:18px}}
+.panel ul{margin:0; padding-left:18px}
+.panel li{font-size:14px; color:var(--text-2); margin-bottom:5px}
+.panel .ch{font-size:13px; font-weight:650; color:var(--text-2); text-transform:none; margin-bottom:8px}
+
+.donutrow{display:grid; grid-template-columns:230px 1fr; gap:28px; align-items:center}
+@media(max-width:820px){.donutrow{grid-template-columns:1fr}}
+.legend{list-style:none; margin:12px 0 0; padding:0; font-size:13px}
+.legend li{display:flex; align-items:center; gap:8px; margin-bottom:5px; color:var(--text-2)}
+.legend i{width:9px; height:9px; border-radius:2px; display:block}
+
+ol.bans{list-style:none; counter-reset:b; margin:14px 0 0; padding:0;
+  display:grid; grid-template-columns:1fr 1fr; gap:10px 28px}
+@media(max-width:820px){ol.bans{grid-template-columns:1fr}}
+ol.bans li{counter-increment:b; display:flex; gap:12px; font-size:14px}
+ol.bans li::before{content:counter(b,decimal-leading-zero); color:var(--text-3); font-weight:650; font-variant-numeric:tabular-nums}
+
+footer{margin-top:64px; padding-top:22px; border-top:1px solid var(--line); font-size:13px; color:var(--text-3)}
+footer a, .tiny a, .eyebrow a{color:var(--text-2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<p class="eyebrow"><a href="index.html">Навигация</a> · ДНК продукта · «Подбор вуза»</p>
+<h1>Система — наша работа. <span class="accent">Выбор — твой.</span></h1>
+<p class="lead">Мы берём на себя всю систему поступления — 1835 вузов со своими правилами, сроки, документы, льготы, конкурсные списки, — чтобы у человека остались силы на единственное решение, которое никто не может принять за него.</p>
+<p class="tiny"><a href="voronka.html">Путь от мысли «надо поступать» до согласия — воронка сужения</a> · <a href="karta.html">карта отсечек</a></p>
+
+<div class="stats">
+  <div class="stat bad"><div class="v">52%</div><div class="l">бросают каталог</div></div>
+  <div class="stat warn"><div class="v">96%</div><div class="l">использований в сезон ПК</div></div>
+  <div class="stat info"><div class="v">3 из 10</div><div class="l">конфликтов — о ценностях</div></div>
+  <div class="stat"><div class="v">13</div><div class="l">запретов в ДНК</div></div>
+</div>
+
+<hr>
+
+<section>
+<h2>Почему не «берём поступление на себя»</h2>
+<div class="grid2">
+  <div class="card">
+    <div class="hd"><b>Здоровье и призыв</b><span>делегируется целиком</span></div>
+    <p class="small">Цель задана извне, одинакова для всех и отрицательна: не заболеть, не попасть в армию. У такой цели нет вариантов — есть только препятствия, и препятствия экспертные.</p>
+    <p class="small muted">Превосходство специалиста над клиентом по всем осям. У клиента нет своего недоступного врачу или юристу знания.</p>
+  </div>
+  <div class="card">
+    <div class="hd"><b>Поступление</b><span>делегируется частично</span></div>
+    <p class="small">Цель положительная и у каждого своя: пять сегментов исследования дают пять разных критериев успеха, а у сегмента «Образование как переход» цель вообще не образовательная.</p>
+    <p class="small muted">Школьник владеет знанием, которое не извлекается ни из каких данных: каково это, когда тебе интересно. Разделение труда структурное, а не этическое.</p>
+  </div>
+</div>
+<div class="note"><b>Следствие</b>У обоих якорей клиента сильное — это механика работы с системой. Всё, что у них про «делегируйте целиком», в зоне выбора превращается в яд. Путаница слоёв и есть главная ошибка.</div>
+<div class="note info"><b>Ипотека — точный аналог</b>Сбер берёт на себя одобрение, документы, оценку и страховку и говорит, сколько дадут и при каких условиях. И не говорит, в какой квартире тебе будет дома. «Под ключ» и «не забираем выбор» совместимы — из четырёх референсов клиента это доказывает только ипотека, потому что в ней у клиента остаётся собственный выбор.</div>
+</section>
+
+<section>
+<h2>Граница делегирования</h2>
+<p class="muted">Граница проходит не по тому, какими данными мы располагаем, а по тому, кто является источником истины.</p>
+
+<div class="layerbtns">
+  <button class="layerbtn" aria-pressed="true" data-layer="0">
+    <div class="n">Слой 1</div><div class="t">Что требует система</div>
+    <div class="k">Знает лучше: мы, безусловно</div><span class="r">Представитель</span>
+  </button>
+  <button class="layerbtn" aria-pressed="false" data-layer="1">
+    <div class="n">Слой 2</div><div class="t">Что ты умеешь</div>
+    <div class="k">Знает лучше: наравне, измеримо</div><span class="r">Арбитр</span>
+  </button>
+  <button class="layerbtn" aria-pressed="false" data-layer="2">
+    <div class="n">Слой 3</div><div class="t">Кто ты и чего хочешь</div>
+    <div class="k">Знает лучше: только он</div><span class="r">Собеседник</span>
+  </button>
+</div>
+
+<div class="panel active" data-panel="0">
+  <h3>Слой 1. Что требует система — представитель</h3>
+  <p class="small">Действуем вместо человека. Превосходство абсолютное, и личность не формируется отслеживанием дедлайна — здесь модель якорей переносится один в один.</p>
+  <div class="cols">
+    <div><div class="ch">Состав слоя</div><ul>
+      <li>Правила приёма — свои у каждого из 1835 вузов</li>
+      <li>Проходные баллы прошлых лет и их динамика</li>
+      <li>БВИ, льготы, целевое, особая и отдельная квота</li>
+      <li>Индивидуальные достижения: что учитывает конкретный вуз</li>
+      <li>Сроки: начало приёма, приказ, срок согласия</li>
+      <li>Приоритеты в заявлении и механика их применения</li>
+      <li>Конкурсные списки и поиск себя в них</li>
+      <li>Общежитие, стоимость, образовательный кредит</li>
+      <li>Содержание программы: учебный план, практика, трудоустройство</li>
+    </ul></div>
+    <div><div class="ch">Как мы здесь работаем</div><ul>
+      <li>Инициатива наша: сообщаем первыми об изменении правил и о приближении срока</li>
+      <li>В 8–9 классе первая работа — календарь сроков и карта «интерес → программа». Олимпиады — сервис узкой когорты, 3,6% зачислений</li>
+      <li>Доводим до зачисления: заявление, приоритеты, списки, согласие. Гарантию результата не даём</li>
+      <li>У каждого числа есть источник и дата обновления</li>
+      <li>Когда данных нет, говорим это прямо</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="panel" data-panel="1">
+  <h3>Слой 2. Что ты умеешь — арбитр</h3>
+  <p class="small">Измеряем и считаем, исполняет человек. Спор «сколько заниматься» разрешается замером, а не авторитетом родителя.</p>
+  <div class="cols">
+    <div><div class="ch">Состав слоя</div><ul>
+      <li>Баллы ЕГЭ и ОГЭ: подтверждённые и ожидаемые, с явным различением</li>
+      <li>Результаты пробников и мини-проверок</li>
+      <li>Оценки в дневнике как факт, без выводов о личности</li>
+      <li>Средний балл аттестата, шансы на медаль и что она даёт</li>
+      <li>Пробелы по конкретным темам</li>
+      <li>Разрыв между текущим результатом и нужным для цели</li>
+      <li>Портфолио: что собрано, что подтверждено документом</li>
+    </ul></div>
+    <div><div class="ch">Как мы здесь работаем</div><ul>
+      <li>Отвечаем за арифметику, не за исполнение</li>
+      <li>Любой вывод оспаривается следующим измерением</li>
+      <li>Прогноз всегда несёт названное допущение</li>
+    </ul></div>
+  </div>
+</div>
+
+<div class="panel" data-panel="2">
+  <h3>Слой 3. Кто ты и чего хочешь — собеседник</h3>
+  <p class="small">Не решаем никогда. Школьник владеет знанием, которое не извлекается ни из каких данных: каково это, когда тебе интересно.</p>
+  <div class="cols">
+    <div><div class="ch">Состав слоя</div><ul>
+      <li>Чем хочется заниматься</li>
+      <li>Зачем вообще высшее образование</li>
+      <li>Готовность уехать и жить отдельно</li>
+      <li>Что важнее: престиж, доход, интерес, скорость выхода на работу</li>
+      <li>Сколько готов отдать усилий и лет</li>
+      <li>Приемлемый риск: вуз мечты или надёжный вариант</li>
+      <li>Как относиться к ожиданиям семьи</li>
+    </ul></div>
+    <div><div class="ch">Как мы здесь работаем</div><ul>
+      <li>Не отвечаем на вопрос «кем тебе быть»</li>
+      <li>Не произносим «тебе подходит» без перечня фактических оснований</li>
+      <li>Проактивно по форме, реактивно по суждению: день биоинформатика предложим сами, «тебе подходит» — нет</li>
+    </ul></div>
+  </div>
+</div>
+</section>
+
+<section>
+<h2>Правило разложения вопроса</h2>
+<p class="muted">Слои не лежат отдельно — они встречаются в каждом реальном вопросе. Поэтому основной рабочий приём: режем вопрос на фактическую часть и оценочную. Фраза «тебе подходит X» склеивает обе и присваивает вторую.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Вопрос школьника</th><th>Наша часть — факт</th><th>Его часть — решение</th></tr></thead>
+<tbody>
+<tr><td>Куда мне пойти?</td><td>что существует, что там происходит, чего это стоит</td><td>куда идти</td></tr>
+<tr><td>Какое направление мне подходит?</td><td>чем направления различаются по содержанию и выходу</td><td>какое ближе</td></tr>
+<tr><td>Смогу я поступить?</td><td>порог, конкурс, твой балл, при каких допущениях</td><td>рисковать или нет</td></tr>
+<tr><td>Это хорошая профессия?</td><td>трудоустройство, доход, спрос, условия</td><td>хорошая ли для тебя</td></tr>
+<tr><td>Колледж или 11 класс?</td><td>как соотносятся маршруты, сроки, возможность продолжить</td><td>что выбрать</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h2>Расхождение мотиваций: разбор 10 персон</h2>
+<p class="muted">Конфликт школьника и родителя прописан почти в каждой персоне исследования, но ни один из нарисованных вариантов его не обрабатывает — во всех трёх родителя в модели нет.</p>
+
+<div class="donutrow">
+  <div>
+    <svg viewBox="0 0 180 180" width="190" height="190" role="img" aria-label="Тип расхождения: информационный 4, ресурсный 3, ценностный 3">
+      <g transform="rotate(-90 90 90)" fill="none" stroke-width="26">
+        <circle cx="90" cy="90" r="70" stroke="var(--accent)" stroke-dasharray="175.93 263.89" stroke-dashoffset="0"></circle>
+        <circle cx="90" cy="90" r="70" stroke="var(--warn)" stroke-dasharray="131.95 307.87" stroke-dashoffset="-175.93"></circle>
+        <circle cx="90" cy="90" r="70" stroke="var(--bad)" stroke-dasharray="131.95 307.87" stroke-dashoffset="-307.88"></circle>
+      </g>
+      <text x="90" y="96" text-anchor="middle" font-size="26" font-weight="700" fill="var(--text)">10</text>
+    </svg>
+    <ul class="legend">
+      <li><i style="background:var(--accent)"></i>Информационный — 4</li>
+      <li><i style="background:var(--warn)"></i>Ресурсный — 3</li>
+      <li><i style="background:var(--bad)"></i>Ценностный — 3</li>
+    </ul>
+    <p class="tiny">Источник: Госуслуги / Образование / Исследование</p>
+  </div>
+  <div>
+    <div class="note info"><b>Семь конфликтов из десяти — это не конфликты</b>Четыре информационных — дефицит факта, выданный за спор: Соне нужны данные о трудоустройстве, Мише — сопоставление уровней образования, Кириллу — формы обучения, Илье — минимальный первый шаг. Три ресурсных — общее ограничение, которое семья переживает вместе. И те, и другие снимаются ровно той работой, которую сервис и так обязан делать на слое 1.</div>
+    <p class="small muted">Под требованием 80/20 вывод ужесточён: медиация отдельным режимом отменена. Её функцию закрывают родительский срез и раскрытые основания. Ценностные случаи не получают ни одной функции — только два ограничения: принимать нестандартную цель, не исправляя её, и выравнивать доступ к фактам, а не присоединяться к сильной стороне. Из десяти персон — ноль дополнительных экранов.</p>
+  </div>
+</div>
+
+<div class="tablewrap"><table>
+<thead><tr><th>Персона</th><th>Чего хочет школьник</th><th>Позиция родителя</th><th>В чём расхождение</th><th>Тип</th><th>Слой</th></tr></thead>
+<tbody>
+<tr><td><span class="dot warn"></span>Артём, 17, Казань</td><td>сильный техвуз, бюджет, среда способных</td><td>переезд поддержат, платить годами не смогут</td><td>не направление, а допустимый риск</td><td>ресурс</td><td>1–2</td></tr>
+<tr><td><span class="dot bad"></span>Алина, 16, малый город</td><td>международные проекты, уехать</td><td>знакомая профессия и поближе к дому</td><td>направление и город одновременно</td><td>ценность</td><td>3</td></tr>
+<tr><td><span class="dot info"></span>Соня, 17, Екатеринбург</td><td>игровая индустрия, творчество как профессия</td><td>поддержат, «если увидят перспективы»</td><td>не «что», а «докажи, что это профессия»</td><td>информация</td><td>1</td></tr>
+<tr><td><span class="dot info"></span>Миша, 15, Пермь</td><td>колледж, быстрее к практике</td><td>предлагают доучиться до 11 класса</td><td>уровень образования и темп</td><td>информация</td><td>1</td></tr>
+<tr><td><span class="dot warn"></span>Данил, 16, Челябинск</td><td>бюджет плюс заработок во время учёбы</td><td>семья ограничена в деньгах</td><td>спора нет, есть общее ограничение</td><td>ресурс</td><td>1</td></tr>
+<tr><td><span class="dot warn"></span>Вера, 17, Воронеж</td><td>сфера здоровья, прикладная профессия</td><td>выбор поддержат, но переезд — нагрузка</td><td>допустимый риск и деньги</td><td>ресурс</td><td>1–2</td></tr>
+<tr><td><span class="dot bad"></span>Лера, 17, малый город</td><td>жить отдельно; специальность вторична</td><td>напряжение вокруг самого отъезда</td><td>цель поступления не образовательная</td><td>ценность</td><td>3</td></tr>
+<tr><td><span class="dot info"></span>Кирилл, 17, Краснодар</td><td>диплом без отрыва от семейного дела</td><td>интересы совпадают: они партнёры</td><td>формат обучения и нагрузка</td><td>информация</td><td>1</td></tr>
+<tr><td><span class="dot bad"></span>Настя, 17, Москва</td><td>медиа, но вариант не сформулирован</td><td>хотят юриста; процессом управляет мама</td><td>направление плюс отобранный процесс</td><td>ценность</td><td>3</td></tr>
+<tr><td><span class="dot info"></span>Илья, 16, Тула</td><td>отложить решение до выпуска</td><td>напоминают, маршрута не предлагают</td><td>давление без содержания</td><td>информация</td><td>1</td></tr>
+</tbody></table></div>
+
+<div class="note warn"><b>Самый тяжёлый случай: Настя</b>Критерий успеха для её сегмента записан в исследовании как «найти путь и собственное понимание, зачем туда идти» — не «поступить». При этом субъектность уже отобрана: процессом управляет мама. Встанем на сторону взрослого, который нас привёл — станем вторым родителем. Встанем на сторону Насти — возьмём мандат, которого у нас нет. Выход: не выбирать сторону в предмете спора, но выровнять доступ к основаниям. У мамы аргументы есть, у Насти нет.</div>
+</section>
+
+<section>
+<h2>Кандидаты ДНК и прогон через тесты</h2>
+<div class="grid2">
+  <p class="small muted"><b>Тест на спор.</b> Мама хочет юрфак рядом с домом и сама ведёт процесс, дочь тянется в медиа в другом городе и своего варианта не сформулировала. Что делает продукт?</p>
+  <p class="small muted"><b>Тест на субъектность.</b> Может ли человек ответить «нет, не так» — и станет ли сервис от этого умнее? Если возразить нечему, субъектность забрали.</p>
+</div>
+<div class="tablewrap"><table>
+<thead><tr><th>Кандидат</th><th>Тест на спор</th><th>Тест на субъектность</th><th>Лечит отвалы</th><th>Лечит сезонность</th><th>Роль</th></tr></thead>
+<tbody>
+<tr><td><span class="dot ok"></span>A. Представитель в системе, собеседник в выборе</td><td>держит: разводит спор по слоям</td><td>проходит по построению</td><td>да</td><td>да, при наполненном слое 3</td><td><b>ядро</b></td></tr>
+<tr><td><span class="dot info"></span>B. Семейный медиатор</td><td>держит отлично</td><td>проходит</td><td>частично</td><td>нет</td><td>отменён: ноль экранов</td></tr>
+<tr><td><span class="dot bad"></span>C. Доверенный представитель</td><td>ломается: обязан выбрать чью-то цель</td><td>провал</td><td>да</td><td>нет</td><td>отбракован</td></tr>
+<tr><td><span class="dot info"></span>D. Тренер-наставник</td><td>не видит спора: родителя в модели нет</td><td>частично</td><td>нет</td><td>да</td><td>механика слоя 2</td></tr>
+<tr><td><span class="dot info"></span>E. Честный навигатор</td><td>уклоняется: не замечает расхождения</td><td>проходит лучше всех</td><td>нет</td><td>нет</td><td>стандарт изложения</td></tr>
+</tbody></table></div>
+<div class="grid2">
+  <div class="note ok"><b>Почему A — ядро</b>Разводит спор по слоям и работает с каждым отдельно: факты о медиа-программах и юрфаке — наша часть, и здесь мы одинаково подробны к обоим вариантам; деньги и риск — общая часть, считается открыто; сам выбор — её часть. Ни на чью сторону не встаём и при этом не уклоняемся.</div>
+  <div class="note bad"><b>Почему B отменён целиком</b>Тесты он проходит, но это три случая из десяти. Медиатор предполагает равенство сторон, а подросток структурно слабее: добросовестно «держащий обе мотивации», он на практике закрепит мамину — она громче. Функцию закрывают родительский срез и раскрытые основания.</div>
+</div>
+</section>
+
+<section>
+<h2>Занятые позиции по осям</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Ось</th><th>Позиция</th></tr></thead>
+<tbody>
+<tr><td>Роль сервиса</td><td>Представитель на слое системы, арбитр на компетенциях, собеседник в выборе</td></tr>
+<tr><td>Субъект</td><td>Владелец — школьник. Родитель — приглашённый участник с ограниченным доступом</td></tr>
+<tr><td>Конфликт</td><td>Нормальная работа слоя 1, не отдельная функция. Два режима: факт и расчёт. Удержание двух позиций режимом не является</td></tr>
+<tr><td>Инициатива</td><td>Проактивно на слое 1, по расписанию на слое 2. На слое 3 — проактивно по форме, реактивно по суждению</td></tr>
+<tr><td>Ответственность</td><td>Полная за факт, арифметику и доведение до зачисления. Никакой за гарантию результата, и это говорится вслух</td></tr>
+<tr><td>Источник доверия</td><td>Проверяемость. Не статус, не отзывы, не премиальность</td></tr>
+<tr><td>Горизонт</td><td>С 8 класса до зачисления. Межсезонье — олимпиадный календарь и пробы, а не пустая бюрократия</td></tr>
+<tr><td>Экономическая роль</td><td>Консультанта заменяем полностью, репетитора — нет, решающего за тебя не существует</td></tr>
+<tr><td>Голос</td><td>Один регистр: любую фразу можно показать обоим без правок</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h3>Разделение видимости: почему школьник — владелец</h3>
+<p class="muted">Если подросток знает, что его сомнения и метания видны родителю, он перестаёт быть честным с сервисом. А без честности третий слой не работает вообще: там нечего обсуждать, кроме правды. Приватность — не опция, а условие работоспособности самой ценной части продукта. Факты о системе не являются чьей-то тайной, размышления о себе — являются.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Видно родителю всегда</th><th>Видно только по решению школьника</th></tr></thead>
+<tbody>
+<tr><td>Сроки и контрольные даты</td><td>Какие программы он рассматривает</td></tr>
+<tr><td>Стоимость обучения и общежития</td><td>Что он отклонил и почему</td></tr>
+<tr><td>Требования к поступлению</td><td>Разговоры о выборе и сомнения</td></tr>
+<tr><td>Статус документов: чего не хватает</td><td>Результаты мини-проверок</td></tr>
+<tr><td>Объём подготовки до цели</td><td>Обращения вузов</td></tr>
+</tbody></table></div>
+<p class="tiny">Родитель получает не контроль, а понимание — ту же вещь, что врач в ЕС Клинике даёт не отчётом, а объяснением. Профиль школьника родитель создать не может: в восьмом классе он часто входит первым, и иначе случай Насти воспроизводится в данных.</p>
+</section>
+
+<section>
+<h2>Точки входа и главный экран</h2>
+<p class="muted">У справочника вход один — поисковая строка, и это причина 52% отвалов. К представителю приходят с ситуацией, и чаще он приходит сам. Основная точка входа — отчёт об изменении, а не запрос. Каждое касание несёт факт с источником и датой, никаких «загляни к нам».</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Вход</th><th>Кто</th><th>Чем заканчивается</th></tr></thead>
+<tbody>
+<tr><td>Наше уведомление об изменении</td><td>все</td><td>разбор: факт, источник, основание, «обновить» или «оставить»</td></tr>
+<tr><td>Холодный факт без регистрации</td><td>аноним</td><td>ответ. Регистрация покупает не факты, а представителя</td></tr>
+<tr><td>Первый вход школьника</td><td>школьник</td><td>класс и регион, затем календарь его года — до любых вопросов о себе</td></tr>
+<tr><td>Первый вход родителя</td><td>родитель</td><td>свой профиль и слой 1 целиком. Профиль ребёнка создаёт только ребёнок</td></tr>
+<tr><td>Диплинк из Госуслуг</td><td>школьник</td><td>согласие на одну названную цель, не «подключить Госуслуги»</td></tr>
+<tr><td>Проба вне сезона</td><td>8–9 класс</td><td>опыт: «посмотри, как выглядит день». Не тест «кем тебе быть»</td></tr>
+</tbody></table></div>
+<div class="grid2">
+  <div class="note ok"><b>Главный экран — выбор, не список дел</b>Бэк-офис не показывают. Полотно занимает выбор, бюрократия сворачивается в строку «Я делаю: 3. Ждёт тебя: 1. Срок — 14 дней». Спокойствие — от того, что ожидающих дел мало и они видны. Тихо не значит непрозрачно: когда дело требует человека, оно приходит разбором.</div>
+  <div class="note"><b>Лайк — не вывод о человеке</b>«Ты отметил три видео про биоинформатику — сравним программы?» — можно. «На основе интересов тебе подходит X» — нет. Если вывод всё же делается, он несёт основание и кнопку «не так».</div>
+</div>
+</section>
+
+<section>
+<h2>Аудит нарисованного</h2>
+<p class="muted">Всё, что лежит в папке, прогнано через ДНК и два теста. Сценарий про льготы оказался эталоном и годится как шаблон для всего слоя 1.</p>
+<div class="pills">
+  <button class="pill" data-v="Работает" aria-pressed="false">Работает · 14</button>
+  <button class="pill" data-v="Переделать" aria-pressed="false">Переделать · 8</button>
+  <button class="pill" data-v="Выбросить" aria-pressed="true">Выбросить · 7</button>
+</div>
+<div class="tablewrap"><table id="audit">
+<thead><tr><th>Элемент</th><th>Источник</th><th>Почему</th></tr></thead>
+<tbody>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Пока мы собирали твой план, я заметила несколько вещей»</td><td>Сценарий: Льготы</td><td>проактивность: сервис нашёл сам, человек не спрашивал</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Было / Стало» с кнопкой «Оставить как есть»</td><td>Сценарий: Льготы</td><td>обратимая рекомендация: возразить можно одним действием</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Помогу сориентироваться, но не подтверждаю юридическое право»</td><td>Сценарий: Льготы</td><td>названная граница ответственности, калька с ПризываНет</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>Градация «Подходит / Нужно уточнить / Информация отличается»</td><td>Сценарий: Льготы</td><td>честная категория для случая «мы не знаем»</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«258 / 250 — на 8 баллов выше. Это не гарантия поступления»</td><td>Вариант №2</td><td>раскрытое основание плюс названная неопределённость</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Подтверждено 168. Информатика — ожидаемые 90»</td><td>Вариант №2</td><td>честность про качество собственных данных</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Доступ к Госуслугам не подключён; без согласия не запрашиваем»</td><td>Вариант №2</td><td>готовая рамка согласия, закрывает самую тревожную формулировку vision</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Почему тебе подходит: по классу, онлайн, есть задания прошлых лет»</td><td>Сценарий: Олимпиады</td><td>лучший пример в папке: все основания фактические, ни одного оценочного</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>Мини-проверка с кнопкой «Дать намёк»</td><td>Сценарий: Олимпиады</td><td>слой 2: измеримо и оспоримо следующей задачей</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Вот что я уже знаю о тебе» с кнопкой «Редактировать»</td><td>Вариант №3</td><td>человек может сказать «нет, не так», и сервис станет точнее</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Медаль даст +3 балла или 100 баллов в пилотных программах»</td><td>Вариант №3</td><td>чистый слой 1: точный и полезный факт системы</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>«Ты сейчас тут → сейчас → завтра → следующий шаг»</td><td>Для вас</td><td>человек всегда знает, где он в процессе</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>Карта «Рядом · Вы 400 м»</td><td>Для вас-4</td><td>прямо отвечает на запрос про города и условия переезда</td></tr>
+<tr data-v="Работает"><td><span class="dot ok"></span>Единый дашборд поступления</td><td>Vision</td><td>ядро слоя 1</td></tr>
+<tr data-v="Переделать"><td><span class="dot warn"></span>«Шанс поступления 64%»</td><td>Вариант №3</td><td>число без раскрытого основания и без допущения</td></tr>
+<tr data-v="Переделать"><td><span class="dot warn"></span>«Прогноз результата 81 → 90+», «после плана 90–93 балла»</td><td>Вариант №3</td><td>обещание результата, за который мы не отвечаем</td></tr>
+<tr data-v="Переделать"><td><span class="dot warn"></span>Лента под заголовком «Хакнуть внимание»</td><td>Vision</td><td>механика верна, рамка описывает манипуляцию: переформулировать в пробу профессии</td></tr>
+<tr data-v="Переделать"><td><span class="dot warn"></span>«Портфолио, чтобы не быть NPC»</td><td>Vision</td><td>убрать стыд; обращение вуза не должно читаться как наша рекомендация</td></tr>
+<tr data-v="Переделать"><td><span class="dot warn"></span>«Госуслуги уже все знают об абитуриенте»</td><td>Vision</td><td>«всё знают» не равно «имеют право использовать»: нужна рамка согласия</td></tr>
+<tr data-v="Переделать"><td><span class="dot warn"></span>«Помочь с выбором? Спросите Сову»</td><td>Вариант №2</td><td>пассивность: сервис ждёт вопроса, а на слое 1 инициатива обязательна</td></tr>
+<tr data-v="Переделать"><td><span class="dot warn"></span>Видео «Один день студента ИТ · 01:24»</td><td>Вариант №2</td><td>подано как контент, а это инструмент слоя 3: поднять в механику выбора</td></tr>
+<tr data-v="Переделать"><td><span class="dot warn"></span>Тон «хочу затащить олимпиаду», «норм, уже хорошая база»</td><td>Сценарий: Олимпиады</td><td>не покажешь маме, сидящей рядом: свести к единому регистру</td></tr>
+<tr data-v="Выбросить"><td><span class="dot bad"></span>«Посмотрел твой дневник → Ваши сильные стороны: логика, творчество»</td><td>Вариант №3</td><td>вывод о личности из оценок; оценка измеряет соответствие программе, не интерес</td></tr>
+<tr data-v="Выбросить"><td><span class="dot bad"></span>«У тебя сильная база для IT и технических направлений»</td><td>Вариант №3</td><td>присвоение оценочной части вопроса: возразить нечему</td></tr>
+<tr data-v="Выбросить"><td><span class="dot bad"></span>«Добавь 5 ВУЗов в избранное и получи ачивку»</td><td>Для вас</td><td>внутренняя метрика сервиса выдана за задачу пользователя и искажает выбор</td></tr>
+<tr data-v="Выбросить"><td><span class="dot bad"></span>«УРА ТЫ ПОСТУПИЛ, забирай финальную ачивку и поделись»</td><td>Для вас-1</td><td>поступление как ачивка обнуляет серьёзность события</td></tr>
+<tr data-v="Выбросить"><td><span class="dot bad"></span>«Твой профиль смотрели уже 444 раза и 23 вуза»</td><td>Для вас-2</td><td>публичный счёт: создаёт тревогу у того, у кого просмотров три</td></tr>
+<tr data-v="Выбросить"><td><span class="dot bad"></span>«68% Олимпиады 42%», ачивка «Охотник: 2 олимпиады»</td><td>Сценарий: Олимпиады</td><td>проценты без указания предмета измерения, прогресс без связи с поступлением</td></tr>
+<tr data-v="Выбросить"><td><span class="dot bad"></span>«Создание и обучение 10-ти ИИ агентов»</td><td>Vision</td><td>количество агентов как цель: пользователю безразлично, сколько их</td></tr>
+</tbody></table></div>
+</section>
+
+<section>
+<h2>Чего мы не делаем никогда</h2>
+<p class="muted">Проверка на пригодность формулировки: если из неё нельзя вывести запрет, это не ДНК, а лозунг.</p>
+<ol class="bans">
+<li>Не отвечаем на вопрос «кем тебе быть»</li>
+<li>Не выводим суждений о способностях и интересах из школьных оценок, баллов и поведения в ленте</li>
+<li>Не произносим «тебе подходит» без приложенного перечня фактических оснований</li>
+<li>Не выдаём рекомендацию, которую нельзя отклонить одним действием</li>
+<li>Не ранжируем вузы по «подходящести» — только по измеримому, и показываем, по чему именно</li>
+<li>Не говорим о вероятности поступления без даты данных, источника и допущения</li>
+<li>Не показываем родителю то, что школьник не открыл сам, кроме фактов о системе</li>
+<li>Не меняем тон в зависимости от того, кто смотрит</li>
+<li>Не награждаем за действия, выгодные сервису</li>
+<li>Не превращаем поступление в публичный счёт и соревнование</li>
+<li>Не выдаём обращение вуза за нашу рекомендацию</li>
+<li>Не используем данные Госуслуг без отдельного согласия на конкретную цель</li>
+<li>Не создаём профиль школьника по инициативе родителя</li>
+</ol>
+</section>
+
+<hr>
+
+<section>
+<h2>Что эта ДНК объясняет</h2>
+<div class="grid3">
+  <div><h3>52% отвалов</h3><p class="small muted">Каталог — это инструмент, выданный человеку вместо работы. Половина пользователей уходит на сторонние ресурсы «из-за когнитивной сложности работы со структурой в форме каталога». Представитель не выдаёт инструмент.</p></div>
+  <div><h3>96% в сезон приёмной кампании</h3><p class="small muted">Это следствие узкого, выпускного слоя 1. В 8–9 классе бюрократия есть: ВсОШ, перечневые олимпиады, предметы ОГЭ, профиль в десятый. Олимпиадный календарь остаётся сервисом узкой когорты: БВИ даёт 3,6% зачислений, целевой набор — 6,4%. Как сужается выбор целиком — <a href="voronka.html">на странице пути</a>.</p></div>
+  <div><h3>Лента — не захват внимания</h3><p class="small muted">Миша не может представить обычный учебный день, Соня видит, что похожие названия программ скрывают разное содержание. Им нужен не совет, а опыт. Механика та же, этика противоположная: дать попробовать профессию на вкус до того, как выберешь.</p></div>
+</div>
+<div class="note"><b>Чем бесплатный продукт заменяет деньги как основание доверия</b>Платный сервис продаёт обязательство, подкреплённое деньгами. Мы обязательство за результат не продаём и не обещаем, поэтому доверие может строиться только на проверяемости: у каждого числа есть источник и дата, у каждой рекомендации — перечень оснований, у каждого прогноза — названное допущение.</div>
+</section>
+
+<footer>
+Разбор построен на материалах проекта: vision «Подбор вуза» на 2027–2028, исследование аудитории Госуслуг, три дизайн-направления и сценарии приёмной кампании.
+</footer>
+
+</div>
+
+<script>
+document.querySelectorAll('.layerbtn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var i = btn.dataset.layer;
+    document.querySelectorAll('.layerbtn').forEach(function(b){ b.setAttribute('aria-pressed', String(b === btn)); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('active', p.dataset.panel === i); });
+  });
+});
+
+function applyFilter(v){
+  document.querySelectorAll('.pill').forEach(function(p){ p.setAttribute('aria-pressed', String(p.dataset.v === v)); });
+  document.querySelectorAll('#audit tbody tr').forEach(function(tr){
+    tr.style.display = (tr.dataset.v === v) ? '' : 'none';
+  });
+}
+document.querySelectorAll('.pill').forEach(function(p){
+  p.addEventListener('click', function(){ applyFilter(p.dataset.v); });
+});
+applyFilter('Выбросить');
+</script>
+</body>
+</html>
