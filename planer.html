@@ -41,8 +41,9 @@ body{font:16px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"He
 button{font:inherit;color:inherit;cursor:pointer}
 button:disabled{cursor:default}
 button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-.stage{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 16px 32px}
-.banner{width:min(390px,100%);margin-bottom:12px}
+.stage{min-height:100vh;display:flex;flex-direction:row;align-items:flex-start;justify-content:center;gap:24px;padding:20px 16px 32px}
+.side{width:320px;flex:0 0 320px;position:sticky;top:20px}
+.banner{width:auto;margin:0}
 .banner p{margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--text-3)}
 .segs{display:flex;flex-direction:column;gap:8px}
 .seg{display:flex;padding:3px;background:var(--pill);border:1px solid var(--line);border-radius:999px}
@@ -126,9 +127,39 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .foot{display:flex;justify-content:space-between;gap:12px;margin:16px 16px 8px;padding-top:12px;border-top:1px solid var(--line);color:var(--text-2);font-size:14px}
 .event .btn.wide{margin:0 16px;width:calc(100% - 32px)}
 .flash{margin:12px 16px 0;font-size:13px;color:var(--text-2)}
+.board{position:relative;height:560px;margin:8px 12px 0;border-radius:18px;overflow:hidden;
+  background:linear-gradient(#143628 0 38%, #1a5670 38% 52%, #10281f 52% 100%)}
+.bridge{position:absolute;z-index:2;left:50%;top:37%;width:44px;height:16%;transform:translateX(-50%);border-radius:4px;
+  background:repeating-linear-gradient(#8a7b68 0 8px,#6e6254 8px 10px);box-shadow:6px 0 0 #3d342c,-6px 0 0 #3d342c}
+.bridge span{position:absolute;left:calc(100% + 14px);top:50%;transform:translateY(-50%);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#f4e4bc}
+.crumb{position:absolute;z-index:1;width:7px;height:7px;margin:-3px 0 0 -3px;border-radius:50%;background:#e6c15a;box-shadow:0 0 6px #e6c15a}
+.pin,.stop{position:absolute;z-index:3;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;color:inherit}
+.pin{display:flex;flex-direction:column;align-items:center;gap:3px}
+.pin i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(#e6c15a calc(var(--p) * 1%), #3a2a16 0);border:2px solid #f0d48a}
+.pin i b{width:24px;height:24px;border-radius:50%;background:#24180e;color:#f6e7c1;display:grid;place-items:center;font-size:10px;font-weight:700}
+.pin em,.stop em{font-style:normal;font-size:10px;line-height:1.15;background:#f4e4bc;color:#3a2c12;padding:2px 6px;border-radius:2px;white-space:nowrap}
+.pin.on i{box-shadow:0 0 0 3px rgba(255,255,255,.45)}
+.stop{display:flex;align-items:center;gap:6px;transform:translate(-14px,-50%)}
+.stop.flip{flex-direction:row-reverse;transform:translate(calc(-100% + 14px),-50%)}
+.stop i{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:13px;
+  background:#5a3b16;border:2px solid #e6c15a;color:#f6e7c1}
+.stop.now i{background:#3b74ff;border-color:#c5d4ff;color:#fff}
+.stop.done i{background:#1f6b45;border-color:#3ecf8e}
+.stop.later{opacity:.5}
+.stop.on em{box-shadow:0 0 0 2px #fff}
+.fills{list-style:none;margin:8px 16px 0;padding:12px 14px;background:var(--card);border-radius:16px}
+.fills li{margin:0 0 8px;font-size:14px;color:var(--text-2)}
+.fills li:last-child{margin:0}
+.fills li.done{color:var(--text)}
+.maphint{margin:8px 16px 0;font-size:13px;color:var(--text-2)}
 .tabs{position:absolute;left:16px;right:16px;bottom:14px;display:flex;background:rgba(22,26,36,.92);border:1px solid var(--line);border-radius:22px;padding:8px 0 6px;backdrop-filter:blur(12px)}
 .tabs button{flex:1;border:0;background:transparent;color:var(--text-3);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .tabs button.on{color:#fff}
+@media (max-width:900px){
+  .stage{flex-direction:column;align-items:center}
+  .side{position:static;width:min(390px,100%)}
+}
 @media (max-width:480px){
   .stage{padding:0}
   .banner{width:100%;padding:12px 12px 0}
@@ -138,7 +169,7 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 </head>
 <body>
 <div class="stage">
-  <div class="banner" id="banner"></div>
+  <aside class="side banner" id="banner"></aside>
   <div class="phone">
     <div class="scroll" id="app"></div>
     <nav class="tabs" id="tabs"></nav>
@@ -180,7 +211,7 @@ const TAGS = {
   "Отсев":"#b08cff", "Списки":"#5ec8e0", "Деньги":"#e0b05a", "Вуз":"#5b8cff",
   "Документы":"#aeb6c6", "Олимпиада":"#e0b05a"
 };
-const NOTE = typo("Прототип планера. Строки из контента «Мой план». «Карта», «Лента» и «Портфель» — оболочка макета, в документах этих разделов нет.");
+const NOTE = typo("Прототип планера. Строки из контента «Мой план». На «Карте» наш берег, мост через реку и путь дальше, проценты — пример. «Лента» и «Портфель» — оболочка макета.");
 
 const SETS = walk([
   {
@@ -286,7 +317,111 @@ const EDGE = indexSet(walk({
   }
 }));
 
-const S = {setId:"10 октябрь", mode:"норма", day:null, screen:"planer", opened:null, skipped:{}, flash:""};
+const MAPS = walk({
+  "9 зима": {
+    rings: [
+      {id:"ege", name:"ЕГЭ", pct:8, color:"#5b8cff", focus:true, items:[
+        {done:false, text:"Предметы ещё не названы"},
+        {done:false, text:"Пробников нет"}
+      ]},
+      {id:"olymp", name:"Олимпиады", pct:35, color:"#e0b05a", items:[
+        {done:true, text:"Школьный этап позади"},
+        {done:false, text:"Муниципальный — ждём списки школы"}
+      ]},
+      {id:"job", name:"Профессия", pct:20, color:"#b08cff", items:[
+        {done:false, text:"Список «куда не пойду» ещё пустой"}
+      ]},
+      {id:"docs", name:"Документы", pct:10, color:"#aeb6c6", items:[
+        {done:false, text:"Грамоты в папку не сложены"}
+      ]},
+      {id:"vuz", name:"Вуз", pct:0, color:"#5ec8e0", items:[
+        {done:false, text:"Списка вузов нет"}
+      ]}
+    ],
+    line: [
+      {title:"Выбор предметов", state:"now", text:"Ты здесь. Называешь, куда не пойдёшь. Профиль — весной."},
+      {title:"Сдача ЕГЭ", state:"later", text:"Экзамены в 11 классе."},
+      {title:"Подача заявления", state:"later", text:"Окно приёма в 11 классе."}
+    ]
+  },
+  "10 октябрь": {
+    rings: [
+      {id:"ege", name:"ЕГЭ", pct:48, color:"#5b8cff", focus:true, items:[
+        {done:true, text:"Целевой балл по математике назван"},
+        {done:true, text:"Разрыв посчитан: 18 баллов"},
+        {done:false, text:"Пробник на этой неделе ещё впереди"}
+      ]},
+      {id:"olymp", name:"Олимпиады", pct:40, color:"#e0b05a", items:[
+        {done:true, text:"Школьный этап был"},
+        {done:false, text:"Муниципальный этап не закрыт"}
+      ]},
+      {id:"job", name:"Профессия", pct:36, color:"#b08cff", items:[
+        {done:false, text:"День открытых дверей МГТУ — 1 ноября"},
+        {done:false, text:"Разговор со студенткой МТУСИ"}
+      ]},
+      {id:"docs", name:"Документы", pct:18, color:"#aeb6c6", items:[
+        {done:true, text:"Одна грамота в папке"},
+        {done:false, text:"Справки к заявлению ещё нет"}
+      ]},
+      {id:"vuz", name:"Вуз", pct:28, color:"#5ec8e0", items:[
+        {done:true, text:"МГТУ в списке"},
+        {done:false, text:"Порядка приоритетов нет"}
+      ]}
+    ],
+    line: [
+      {title:"Выбор предметов", state:"done", text:"Предметы названы."},
+      {title:"Сдача ЕГЭ", state:"now", text:"Ты здесь. Разрыв по математике — 18 баллов."},
+      {title:"Подача заявления", state:"later", text:"Июнь–июль."}
+    ]
+  },
+  "11 июнь": {
+    rings: [
+      {id:"ege", name:"ЕГЭ", pct:100, color:"#5b8cff", items:[
+        {done:true, text:"Баллы уже есть"}
+      ]},
+      {id:"olymp", name:"Олимпиады", pct:55, color:"#e0b05a", items:[
+        {done:true, text:"Этапы этого года закрыты"},
+        {done:false, text:"Диплома, который снимает конкурс, нет"}
+      ]},
+      {id:"job", name:"Профессия", pct:70, color:"#b08cff", items:[
+        {done:true, text:"Направления в заявлении названы тобой"}
+      ]},
+      {id:"docs", name:"Документы", pct:84, color:"#aeb6c6", focus:false, items:[
+        {done:true, text:"Комплект по вузам собран"},
+        {done:false, text:"Согласие ещё не подано"}
+      ]},
+      {id:"vuz", name:"Вуз", pct:76, color:"#5ec8e0", focus:true, items:[
+        {done:true, text:"Заявление на Госуслугах отправлено"},
+        {done:false, text:"Приоритеты можно менять до конца окна"},
+        {done:false, text:"Согласие — впереди, срок этого года"}
+      ]}
+    ],
+    line: [
+      {title:"Выбор предметов", state:"done", text:"Предметы в заявлении."},
+      {title:"Сдача ЕГЭ", state:"done", text:"Баллы уже есть."},
+      {title:"Подача заявления", state:"now", text:"Ты здесь. Приоритеты можно менять до конца окна."}
+    ]
+  },
+  "край": {
+    rings: [
+      {id:"ege", name:"ЕГЭ", pct:0, color:"#5b8cff", focus:true, items:[{done:false, text:"Пока не из чего заполнять"}]},
+      {id:"olymp", name:"Олимпиады", pct:0, color:"#e0b05a", items:[{done:false, text:"Школьный этап этого сентября закрыт"}]},
+      {id:"job", name:"Профессия", pct:0, color:"#b08cff", items:[{done:false, text:"Направлений нет"}]},
+      {id:"docs", name:"Документы", pct:0, color:"#aeb6c6", items:[{done:false, text:"Папка пустая"}]},
+      {id:"vuz", name:"Вуз", pct:0, color:"#5ec8e0", items:[{done:false, text:"Списка вузов нет"}]}
+    ],
+    line: [
+      {title:"Выбор предметов", state:"now", text:"Ты здесь. Ближайшее решение — через 14 месяцев."},
+      {title:"Сдача ЕГЭ", state:"later", text:"Экзамены в 11 классе."},
+      {title:"Подача заявления", state:"later", text:"Окно приёма в 11 классе."}
+    ]
+  }
+});
+
+const S = {setId:"10 октябрь", mode:"норма", day:null, screen:"planer", opened:null, skipped:{}, flash:"", ring:"", step:""};
+
+const PIN_AT = {ege:["16%","11%"], olymp:["74%","10%"], job:["46%","12%"], docs:["84%","22%"], vuz:["16%","29%"]};
+const STOP_AT = [["38%","34%"],["66%","68%","flip"],["32%","86%"]];
 
 function current(){
   if (S.mode === "предел") return LIMIT;
@@ -340,6 +475,65 @@ function renderBanner(){
     `<p>${esc(NOTE)}</p><div class="segs"><div class="seg" role="group" aria-label="Набор">${setBtns}</div><div class="seg" role="group" aria-label="Длина строк">${modes}</div></div>`;
 }
 
+function mapOf(view){
+  if (S.mode === "край") return MAPS["край"];
+  if (S.mode === "предел" || view.id === "10 октябрь") return MAPS["10 октябрь"];
+  return MAPS[view.id] || MAPS["10 октябрь"];
+}
+function switcher(){
+  const mapOn = S.screen === "map";
+  return `<div class="switch" role="tablist" aria-label="Раздел макета">
+    <button type="button" role="tab" data-act="tab" data-tab="map" class="${mapOn ? "on" : ""}" aria-selected="${mapOn}">Карта</button>
+    <button type="button" role="tab" data-act="tab" data-tab="planer" class="${mapOn ? "" : "on"}" aria-selected="${!mapOn}">Планер</button>
+  </div>`;
+}
+function crumbs(){
+  const pts = [[38,34],[50,37],[50,53],[66,68],[32,86]];
+  let html = "";
+  for (let i = 0; i < pts.length - 1; i++){
+    for (let t = 0; t <= 1; t += 0.2){
+      const x = pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t;
+      const y = pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t;
+      html += `<i class="crumb" style="left:${x}%;top:${y}%"></i>`;
+    }
+  }
+  return html;
+}
+function renderMap(view){
+  const map = mapOf(view);
+  if (S.ring && !map.rings.some(r => r.id === S.ring)) S.ring = "";
+  const pins = map.rings.map(r => {
+    const at = PIN_AT[r.id];
+    const on = S.step === "" && S.ring === r.id;
+    return `<button type="button" class="pin${on ? " on" : ""}" data-act="ring" data-ring="${r.id}" aria-pressed="${on}" style="left:${at[0]};top:${at[1]}" aria-label="${esc(r.name)}, ${r.pct}%">
+      <i style="--p:${r.pct}"><b>${r.pct}</b></i><em>${esc(r.name)}</em>
+    </button>`;
+  }).join("");
+  const stops = map.line.map((s, i) => {
+    const at = STOP_AT[i];
+    const on = String(S.step) === String(i);
+    return `<button type="button" class="stop ${s.state}${at[2] ? " flip" : ""}${on ? " on" : ""}" data-act="step" data-step="${i}" aria-pressed="${on}" style="left:${at[0]};top:${at[1]}">
+      <i>${i + 1}</i><em>${esc(s.title)}</em>
+    </button>`;
+  }).join("");
+  let below = `<p class="maphint">На нашем берегу пять точек и выбор предметов. Через мост — сдача ЕГЭ и подача.</p>`;
+  if (S.step !== ""){
+    const s = map.line[Number(S.step)];
+    below = `<p class="maphint"><b>${esc(s.title)}.</b> ${esc(s.text)}</p>`;
+  } else if (S.ring){
+    const ring = map.rings.find(r => r.id === S.ring);
+    const items = ring.items.map(it => `<li class="${it.done ? "done" : ""}">${it.done ? "●" : "○"} ${esc(it.text)}</li>`).join("");
+    below = `<ul class="fills">${items}</ul>`;
+  }
+  return `${switcher()}
+    <div class="board" aria-label="Карта">
+      ${crumbs()}
+      <div class="bridge"><span>мост</span></div>
+      ${pins}
+      ${stops}
+    </div>
+    ${below}`;
+}
 function renderPlaner(view){
   const day = selDay(view);
   const meta = view.days.find(d => d.n === day);
@@ -367,10 +561,7 @@ function renderPlaner(view){
   const body = list.length
     ? `<div class="tasks">${list.map(taskCard).join("")}</div>`
     : `<div class="empty"><p>${esc(view.empty)}</p><button type="button" class="btn" data-act="map">Открыть карту</button></div>`;
-  return `<div class="switch" role="tablist" aria-label="Раздел макета">
-      <button type="button" data-act="tab" data-tab="map">Карта</button>
-      <button type="button" class="on" data-act="tab" data-tab="planer">Планер</button>
-    </div>
+  return `${switcher()}
     <div class="carousel">${plans}</div>
     <div class="month"><h2>${esc(view.month)}</h2><div class="nav">
       <button type="button" class="round" data-act="month" data-dir="-1" ${off} aria-label="Предыдущий месяц">${icon("chevL")}</button>
@@ -453,7 +644,7 @@ function render(){
   const eventOn = S.screen === "event" && S.opened;
   document.querySelector(".phone").classList.toggle("event", !!eventOn);
   renderBanner();
-  document.getElementById("app").innerHTML = eventOn ? renderEvent(view) : renderPlaner(view);
+  document.getElementById("app").innerHTML = eventOn ? renderEvent(view) : S.screen === "map" ? renderMap(view) : renderPlaner(view);
   renderTabs();
 }
 
@@ -463,9 +654,9 @@ document.body.addEventListener("click", (e) => {
   const view = current();
   const act = el.dataset.act;
   if (act === "set"){
-    S.setId = el.dataset.id; S.day = null; S.screen = "planer"; S.opened = null; S.flash = "";
+    S.setId = el.dataset.id; S.day = null; if (S.screen === "event") S.screen = "planer"; S.opened = null; S.flash = "";
   } else if (act === "mode"){
-    S.mode = el.dataset.mode; S.day = null; S.screen = "planer"; S.opened = null; S.flash = ""; S.skipped = {};
+    S.mode = el.dataset.mode; S.day = null; if (S.screen === "event") S.screen = "planer"; S.opened = null; S.flash = ""; S.skipped = {};
   } else if (act === "month"){
     const ids = SETS.map(s => s.id);
     let i = ids.indexOf(S.setId) + Number(el.dataset.dir);
@@ -495,10 +686,16 @@ document.body.addEventListener("click", (e) => {
     }
   } else if (act === "back"){
     S.screen = "planer"; S.flash = "";
-  } else if (act === "map" || (act === "tab" && el.dataset.tab !== "planer" && el.dataset.tab !== "plan")){
-    S.flash = typo("Этот переход в прототипе не собран.");
-  } else if (act === "tab"){
+  } else if (act === "map" || (act === "tab" && el.dataset.tab === "map")){
+    S.screen = "map"; S.opened = null; S.flash = "";
+  } else if (act === "ring"){
+    S.ring = el.dataset.ring; S.step = ""; S.flash = "";
+  } else if (act === "step"){
+    S.step = el.dataset.step; S.flash = "";
+  } else if (act === "tab" && (el.dataset.tab === "planer" || el.dataset.tab === "plan")){
     S.screen = "planer"; S.flash = "";
+  } else if (act === "tab"){
+    S.flash = typo("Этот переход в прототипе не собран.");
   } else if (act === "eventbtn"){
     S.flash = typo("Дальше этот прототип не идёт.");
   }
