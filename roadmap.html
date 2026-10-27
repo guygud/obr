@@ -4,12 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Роадмап · помощник</title>
-<meta name="description" content="Помощник раскладывает путь дорогой с точками. Три плана сверху, сроки видны, задачи под замком.">
+<meta name="description" content="Три сценария на три месяца. На поле значки, задание открывается по нажатию.">
 <style>
 :root{
   --bg:#07080c;--phone:#0e1016;--card:#1a1e28;--card-2:#161a24;--line:#2a3040;
   --text:#f4f6fb;--text-2:#a7adba;--text-3:#7e8696;--blue:#3b74ff;--green:#3ecf8e;
-  --pill:#1a1e28;--pill-on:#3a4154;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--text)}
@@ -35,48 +34,38 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;padding:4px 16px 8px}
 .chip,.go{border:1px solid var(--line);background:#1c2230;border-radius:999px;padding:8px 12px;font-size:14px}
 .go{display:block;margin:8px 16px 0;background:var(--blue);border-color:var(--blue);color:#fff;font-weight:650;text-align:center}
-.goals{display:flex;justify-content:space-between;align-items:flex-start;margin:2px 18px 12px;position:relative}
+.goals{display:flex;justify-content:space-between;align-items:flex-start;margin:2px 12px 12px;position:relative}
 .goals::before{content:"";position:absolute;top:22px;left:16%;right:16%;border-top:2px dashed #3a4258}
-.goal{position:relative;z-index:1;width:100px;border:0;background:transparent;color:inherit;text-align:center;padding:0}
+.goal{position:relative;z-index:1;width:112px;border:0;background:transparent;color:inherit;text-align:center;padding:0}
 .goal i{width:44px;height:44px;margin:0 auto 4px;border-radius:50%;border:2px solid var(--blue);background:#141824;display:grid;place-items:center;font-style:normal;font-weight:720}
 .goal.on i{background:var(--blue);color:#fff}
-.goal.unnamed i{border-style:dashed;color:var(--text-2)}
 .goal b{display:block;font-size:12px;font-weight:650;line-height:1.2}
-.goal span{display:block;margin-top:1px;font-size:11px;color:var(--text-3)}
-.board{position:relative;margin:0 8px}
+.goal span{display:block;margin-top:2px;font-size:10px;line-height:1.2;color:var(--text-3)}
+.board{position:relative;margin:0 6px}
 .road{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-.stop{position:relative;z-index:1;height:168px}
-.stop.tall{height:320px}
-.stop.finish{height:120px}
-.node{position:absolute;top:42%;z-index:2;width:46px;height:46px;margin:0;padding:0;border-radius:50%;border:2px solid #8b93a7;background:#1a1e28;color:#fff;font-weight:720;transform:translate(-50%,-50%)}
-.node.left{left:22%}
-.node.right{left:72%}
-.node.now{background:var(--blue);border-color:#c5d4ff}
-.node.done{background:#1f6b45;border-color:var(--green)}
-.node.later,.node.lock{background:#12151c;border-style:dashed;color:var(--text-2)}
-.node svg{width:22px;height:22px;display:block;margin:0 auto}
-.cap{position:absolute;z-index:2;top:calc(42% + 28px);width:120px;transform:translateX(-50%);text-align:center;font-size:11px;line-height:1.2;color:var(--text-2)}
-.cap.left{left:22%}
-.cap.right{left:72%}
-.cap b,.cap span{display:block}
-.cap b{color:var(--text);font-size:12px;font-weight:650}
-.task,.offer{position:absolute;z-index:2;top:10px;width:52%;max-width:54%;text-align:left;background:var(--card);border:0;border-radius:14px;padding:8px 10px 10px;color:inherit}
-.task.right,.offer.right{right:4px}
-.task.left,.offer.left{left:4px}
-.task .badge,.offer .badge{display:inline-block;font-size:11px;font-weight:650;color:#0e1016;background:var(--c,#5b8cff);border-radius:999px;padding:2px 8px}
-.task b,.offer b{display:block;margin-top:6px;font-size:14px;line-height:1.25}
-.task .line,.offer .line{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:4px;font-size:12px;color:var(--text-2)}
-.marks{display:flex;gap:4px;margin-top:8px}
-.marks i{width:16px;height:4px;border-radius:2px;background:#343b4d;font-style:normal}
-.marks i.on{background:var(--green)}
-.task.lock{top:24px;display:flex;align-items:center;gap:8px;min-height:64px;background:transparent;color:var(--text-3);border:1px dashed #3a4258;font-size:13px}
-.task.lock svg{flex:0 0 18px;width:18px;height:18px}
-.offer{top:auto;bottom:8px;border:1px dashed var(--c,#e0b05a);background:#16141c;padding:6px 8px 8px}
-.offer .hit{display:block;width:100%;border:0;background:transparent;color:inherit;text-align:left;padding:0}
-.offer .btns{margin-top:8px}
-.back{position:absolute;z-index:2;bottom:8px;border:0;background:transparent;color:var(--text-2);font-size:13px;padding:4px 0}
-.back.right{right:4px}
-.back.left{left:4px}
+.month{position:relative;z-index:1;margin:10px 14px 0;font-size:12px;color:var(--text-3)}
+.week{position:relative;z-index:1;display:flex;align-items:center;gap:6px;min-height:72px;padding:4px 6px 4px 2px}
+.wn{flex:0 0 18px;font-size:11px;color:var(--text-3);text-align:right}
+.lane{flex:1;display:flex;align-items:center;justify-content:space-evenly;min-width:0;min-height:48px}
+.lane.flip{flex-direction:row-reverse}
+.lane.n1{justify-content:flex-start;padding-left:22px}
+.lane.n1.flip{justify-content:flex-end;padding-left:0;padding-right:22px}
+.cell{flex:0 0 48px;width:48px;height:48px;padding:0;border-radius:14px;border:2px solid var(--c,#5b8cff);background:transparent;color:var(--c);display:grid;place-items:center}
+.cell svg{width:22px;height:22px;display:block}
+.cell.done{background:var(--c);color:#0e1016}
+.cell.now{box-shadow:0 0 0 3px color-mix(in srgb, var(--c) 55%, transparent)}
+.cell.sil{border-style:dashed}
+.cell.sil svg{opacity:.4}
+.cell.fog{border:1px dashed #3a4258;background:var(--phone);color:transparent}
+.bubble{flex:0 0 108px;width:108px;border:1px dashed #e0b05a;background:#16140e;border-radius:14px;padding:8px;text-align:left;color:inherit}
+.bubble b{display:block;font-size:12px;font-weight:650;line-height:1.25}
+.bubble .off{display:block;margin-top:6px;border:0;background:transparent;color:#e0b05a;padding:0;font-size:12px;font-weight:650}
+.week.mile{min-height:0;padding:6px 8px 4px 26px}
+.cell.mile{flex:1 1 auto;width:auto;height:auto;min-height:64px;display:block;text-align:left;padding:8px 12px;border-color:#e0b05a;color:inherit;background:var(--card);box-shadow:0 0 0 4px rgba(224,176,90,.22)}
+.cell.mile .kicker{display:block;font-size:11px;color:#e0b05a;margin-bottom:2px}
+.cell.mile b{display:block;font-size:16px;line-height:1.2;letter-spacing:-.02em}
+.cell.mile .sub{display:block;margin-top:2px;font-size:12px;color:var(--text-2);font-weight:450}
+.fogcap{position:relative;z-index:1;margin:6px 14px 0;font-size:13px;color:var(--text-3)}
 .dock{flex:none;display:flex;gap:8px;align-items:center;margin:0 12px 8px;padding:6px 8px;background:#141820;border:1px solid var(--line);border-radius:14px}
 .dock .lab{flex:0 0 auto;font-size:12px;color:var(--text-3);padding:0 4px}
 .dock .row{display:flex;gap:8px;overflow:auto;scrollbar-width:none}
@@ -88,17 +77,15 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .tabs button{flex:1;border:0;background:transparent;color:var(--text-3);font-size:13px;padding:6px}
 .tabs button.on{color:#fff;font-weight:650}
 .sheet{position:absolute;left:0;right:0;bottom:0;max-height:72%;overflow:auto;background:#141820;border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:16px 16px 28px;z-index:4}
-.sheet h2{margin:0 40px 6px 0;font-size:22px;letter-spacing:-.02em}
+.sheet h2{margin:0 40px 8px 0;font-size:22px;letter-spacing:-.02em}
 .sheet .x{position:absolute;top:12px;right:12px;width:32px;height:32px;border:0;border-radius:50%;background:#1c2230}
-.sheet p{margin:0 0 10px;color:var(--text-2);font-size:15px}
-.sheet .src{font-size:13px;color:var(--text-3)}
-.whybox{margin:8px 0 12px;padding:12px;background:var(--card-2);border-radius:12px}
-.whybox b{display:block;margin-bottom:4px;font-size:14px}
+.sheet p{margin:0 0 12px;color:var(--text-2);font-size:15px}
+.sheet .done{color:var(--green);font-weight:650}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
-.btn{border:0;background:var(--blue);color:#fff;border-radius:999px;padding:8px 12px;font-weight:650;font-size:13px}
+.btn{border:0;background:var(--blue);color:#fff;border-radius:999px;padding:8px 14px;font-weight:650;font-size:14px}
 .btn.ghost{background:#2a3142;color:var(--text)}
 .cards{padding:0 16px}
-.card{width:100%;text-align:left;background:var(--card);border:0;border-left:3px solid #aeb6c6;border-radius:16px;padding:14px;margin:0 0 10px;color:inherit}
+.card{background:var(--card);border-left:3px solid #aeb6c6;border-radius:16px;padding:14px;margin:0 0 10px}
 .card b{display:block;font-size:16px}
 .card span{display:block;margin-top:4px;color:var(--text-2);font-size:14px}
 .flash{margin:0 16px 8px;font-size:13px;color:var(--text-2)}
@@ -147,101 +134,174 @@ function esc(s){
   return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 }
 
-const NOTE = typo("Прототип роадмапа. Три плана сверху переключают дорогу. Точка держит дату, задача сбоку. Под замком даты нет. Карточка в портфеле — от документа. Числа — из доклада ВШЭ.");
-const COLOR = {предметы:"#5b8cff", срок:"#e08a3c", отсев:"#b08cff", разговор:"#3ecf8e", олимпиада:"#e0b05a", документы:"#aeb6c6", целевое:"#e0b05a"};
+const NOTE = typo("Три сценария на три месяца. На поле значок и цвет. Нажми — задание и одна кнопка. Вопросы помощника сбоку, не на дороге. Дальше поля — туман.");
 
-const BASE = walk([
-  {id:"profile", n:1, title:"Профиль и ОГЭ", when:"весна 9 класса", price:"Предметы закрепят перечень на два года.", why:"Девятый класс фиксирует направления на два года.", source:"Девятый класс, а не старшая школа, стал ключевой точкой выбора высшего образования."},
-  {id:"subjects", n:2, title:"Предметы ЕГЭ", when:"1 февраля", price:"После этой даты состав не пересобрать.", why:"Состав предметов для сессии фиксируется здесь.", source:"ЕГЭ — 62,3% зачислений."},
-  {id:"exam", n:3, title:"Сдача ЕГЭ", when:"даты экзаменов", price:"ЕГЭ — 62,3% зачислений.", why:"Основной канал зачисления, не олимпиада.", source:"90% усилий по подготовке нацелены на ЕГЭ."},
-  {id:"apply", n:4, title:"Подача", when:"июнь–июль", price:"Места теряют на порядке приоритетов.", why:"Порядок в заявлении называешь ты. Мы его не подставляем.", source:"Треть оказывается в вузе, который был запасным."},
-  {id:"yes", n:5, title:"Согласие", when:"срок этого года", price:"Пропуск необратим.", why:"Внутри срока согласие можно отозвать. Это говорим мы.", source:"нет"}
-]);
-
-const CARDS = walk([
-  {id:"oge-doc", title:"Запись на ОГЭ", meta:"Справка школы", note:"Документ школы, не отметка у нас. На подаче ляжет в комплект."},
-  {id:"mock", title:"Математика, 68", meta:"Пробник", note:"Балл из пробника. Ниже прошлого — обычный результат, не провал."}
-]);
-
-const OFFER = {
-  med: walk({id:"olymp", type:"олимпиада", title:"Олимпиада?", text:"Не хочешь на школьный этап? Регистрация в сентябре.", why:"Диплом нужного уровня снимает конкурс на части направлений. Пропуск в этом году не закрывает следующий сентябрь.", source:"Олимпиада — 3,6% зачислений.", added:"Назови предметы школьного этапа"}),
-  code: walk({id:"target", type:"целевое", title:"Целевое?", text:"Не хочешь посмотреть целевой набор? Договор и документы ведём мы.", why:"Это бюрократия, не выбор «кем быть». Куда заключать договор — решаешь ты.", source:"Целевой набор — 6,4% зачислений. Больше, чем олимпиада.", added:"Где есть целевой набор по твоим направлениям"})
+const COLOR = {
+  подготовка:"#5b8cff",
+  лента:"#4ec9e0",
+  профилирование:"#8b7cf0",
+  проба:"#3ecf8e",
+  отсев:"#e06c9a",
+  вуз:"#e08a3c",
+  документы:"#aeb6c6",
+  олимпиада:"#e0b05a"
 };
 
-const PLANS = walk([
-  {
-    id:"med", n:1, name:"терапевт", named:true,
-    lead:"Биология и химия. Даты те же, что у других планов.",
-    stops:{
-      profile:{state:"now", task:{type:"предметы", title:"Предметы ОГЭ", text:"Биология и химия. У каждого — какое направление он держит.", steps:1}},
-      subjects:{state:"later"},
-      exam:{state:"lock"},
-      apply:{state:"lock"},
-      yes:{state:"lock"}
-    }
-  },
-  {
-    id:"code", n:2, name:"программист", named:true,
-    lead:"Информатика и профильная математика. Даты те же.",
-    stops:{
-      profile:{state:"done", task:{type:"предметы", title:"Профиль назван", text:"Информатика и профильная математика. Перечень на два года зафиксирован.", steps:3}},
-      subjects:{state:"now", task:{type:"предметы", title:"Предметы ЕГЭ", text:"Перечень называешь ты. У каждого предмета — какое направление он держит.", steps:1}},
-      exam:{state:"later"},
-      apply:{state:"lock"},
-      yes:{state:"lock"}
-    }
-  },
-  {
-    id:"none", n:3, name:"", named:false,
-    lead:"План не назван. Сначала отсев, не профессия.",
-    stops:{
-      profile:{state:"now", task:{type:"отсев", title:"Куда точно не пойдёшь", text:"Напиши направление и причину своими словами. Профессию за тебя не называем.", steps:0}},
-      subjects:{state:"lock"},
-      exam:{state:"lock"},
-      apply:{state:"lock"},
-      yes:{state:"lock"}
-    }
-  }
-]);
+const ACT = walk({
+  подготовка:{label:"Открыть тренажёр", done:"Тренажёр открыт."},
+  лента:{label:"Смотреть", done:"Ролик открыт."},
+  профилирование:{label:"Пройти тест", done:"Тест открыт."},
+  проба:{label:"Посмотреть день", done:"День открыт."},
+  отсев:{label:"Написать", done:"Можно писать."},
+  вуз:{label:"Открыть вуз", done:"Карточка вуза открыта."},
+  документы:{label:"Загрузить", done:"Можно загрузить файл."},
+  олимпиада:{label:"Готовиться", done:"Подготовка открыта."}
+});
 
-const FINISH = walk({id:"finish", title:"Зачисление", text:"Конечная ценность — зачисление, а не выбранный вуз.", why:"Доводим до заявления, приоритетов, списков и согласия. Гарантию результата не даём.", source:"нет"});
+const ICO = {
+  подготовка:'<rect x="7" y="3.5" width="11" height="17" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 8h11M10.5 3.5v17M13 11.5h3M13 14.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>',
+  лента:'<path d="M9 7.2v9.6l8.2-4.8L9 7.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  профилирование:'<path d="M8 7.2 9.6 8.8 13 5.6M8 12.7 9.6 14.3 13 11.1M8 18.2 9.6 19.8 13 16.6M15 8h4M15 13.5h4M15 19h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+  проба:'<path d="M2.8 12S6.6 6.6 12 6.6 21.2 12 21.2 12 17.4 17.4 12 17.4 2.8 12 2.8 12z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="2.1" fill="currentColor"/>',
+  отсев:'<circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.4 16.6 16.6 7.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
+  вуз:'<path d="M4 9.5 12 4l8 5.5M6 9.5V20M10 9.5V20M14 9.5V20M18 9.5V20M4 20h16M4 9.5h16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>',
+  документы:'<path d="M4 8h6l2 2h8v8.2a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 18.2V8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>',
+  олимпиада:'<path d="M9 3.5h6l-1.1 6.2h-3.8L9 3.5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="15.2" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/>',
+  check:'<path d="M6 12.4 10 16.2 18 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+};
+
+function ico(name){
+  return `<svg viewBox="0 0 24 24" aria-hidden="true">${ICO[name] || ""}</svg>`;
+}
+
+const CASE = walk({биология:"биологии", химия:"химии", информатика:"информатике", математика:"математике"});
+
+const DATA = walk({
+  none:{
+    id:"none", n:1, name:"не знаю предметы", per:"1 задание в неделю", count:1,
+    lead:"Одно дело в неделю: ролики, тест, день открытых дверей.",
+    pattern:[
+      {type:"лента", title:"Три ролика", text:"Посмотри три коротких ролика про разные направления. Запиши, что не твоё."},
+      {type:"проба", title:"Обычный день", text:"Посмотри, как проходит рабочий день. Напиши: оставить или нет, и почему."},
+      {type:"отсев", title:"Куда не пойду", text:"Напиши направление и почему оно не твоё."},
+      {type:"вуз", title:"День открытых дверей", text:"Запишись и сходи. Это чтобы посмотреть, не чтобы выбрать вуз."}
+    ],
+    pins:{
+      "2-0":{type:"профилирование", title:"Тест профди", text:"Пройди тест. Запиши своими словами, что не твоё и что пока оставляешь."},
+      "6-0":{type:"вуз", title:"День открытых дверей", text:"Запишись и сходи посмотреть вуз."}
+    },
+    mile:{title:"5 вычеркнул, 2 оставил", note:"Твои слова", text:"Пять направлений ты вычеркнул, два оставил."}
+  },
+  subjects:{
+    id:"subjects", n:2, name:"выбираю предметы", per:"3 задания в неделю", count:3,
+    lead:"Два раза в неделю готовься к ЕГЭ. Третье дело — ролик или тест.",
+    prep:[
+      {type:"подготовка", title:"Пробник", text:"Реши пробник по своему предмету. Балл возьмём из результата."},
+      {type:"подготовка", title:"Одна тема", text:"Разбери тему, где на пробнике ошибся."},
+      {type:"подготовка", title:"Час задач", text:"Порешай задачи час. Сколько в неделю — решаешь ты."},
+      {type:"подготовка", title:"Ещё час", text:"Второе занятие на этой неделе."},
+      {type:"подготовка", title:"Ошибки", text:"Разбери ошибки прошлого пробника. Балл ниже — это просто балл."},
+      {type:"подготовка", title:"Второй предмет", text:"Занятие по второму предмету из твоего списка."},
+      {type:"подготовка", title:"Короткая проверка", text:"Короткая проверка по теме. Без неё не видно, стало ли лучше."},
+      {type:"подготовка", title:"Ещё задачи", text:"Ещё задачи по той же теме."}
+    ],
+    third:[
+      {type:"лента", title:"Ролики", text:"Посмотри ролики про направления, которые ещё рассматриваешь."},
+      {type:"профилирование", title:"Ещё тест", text:"Пройди тест ещё раз. Снова запиши, что не твоё и что оставляешь."}
+    ],
+    pins:{},
+    mile:{title:"250 баллов", note:"Три пробника", text:"Сумма трёх пробников."}
+  },
+  vuz:{
+    id:"vuz", n:3, name:"выбираю вуз", per:"2 задания в неделю", count:2,
+    lead:"Два дела в неделю: вуз и бумаги.",
+    left:[
+      {type:"вуз", title:"Вуз в список", text:"Добавь вуз и направление. Сколько строк — решаешь ты."},
+      {type:"вуз", title:"Правила приёма", text:"Открой правила приёма. Смотри дату на сайте вуза."},
+      {type:"вуз", title:"Проходные", text:"Посмотри проходные прошлых лет. Это не твой будущий балл."},
+      {type:"вуз", title:"Ещё вуз", text:"Добавь ещё один вуз, если он тебе нужен."}
+    ],
+    right:[
+      {type:"вуз", title:"День открытых дверей", text:"Запишись на день открытых дверей вуза из своего списка."},
+      {type:"документы", title:"Одна бумага", text:"Собери одну бумагу для вуза из списка."}
+    ],
+    pins:{},
+    mile:{title:"5 вузов", note:"Список и бумаги", text:"Пять вузов в списке и бумаги к ним."}
+  }
+});
+
+const CARDS = walk([
+  {id:"oge-doc", title:"Запись на ОГЭ", meta:"Справка школы", note:"Справка из школы. Галочка её не заменяет."},
+  {id:"mock", title:"Математика, 68", meta:"Пробник", note:"Балл из пробника. Ниже прошлого — просто балл."}
+]);
 
 const SCRIPT = walk([
-  {text:"Соберу дорогу. То, что кажется брожением, у консультанта уже разложено.", key:"place", q:"Какой класс и регион?", chips:["9 класс, Москва"]},
-  {text:"Куда точно не пойдёшь? Отсечь проще, чем выбрать.", key:"cut", q:"", chips:["Медицина","Право","Пока не отсекаю"]},
-  {text:"Сколько минут в день готов заниматься? Это объём, не характер.", key:"mins", q:"", chips:["15 минут","30 минут","Час"]},
-  {text:"Дорога готова. Сверху три плана: два названных и один пустой. Даты на точках видны сразу. Задачи дальше — под замком.", go:true}
+  {text:"Соберу план на три месяца.", key:"place", q:"Где ты учишься?", chips:["9 класс, Москва"]},
+  {text:"На чём ты сейчас?", key:"known", q:"", chips:["Не знаю, помоги выбрать","Направление есть, предметы нет","Предметы есть, нужен вуз"]},
+  {text:"Сколько минут в день готов заниматься?", key:"mins", q:"", chips:["15 минут","30 минут","Час"]},
+  {text:"План на три месяца готов. С пятой недели значки без заданий. В конце число, дальше туман.", go:true}
 ]);
 
-const S = {built:false, screen:"chat", turn:0, answers:{}, planId:"med", offer:{med:"ask", code:"ask", none:"out"}, objected:{}, sheet:null, flash:""};
+const SUBJECTS = ["биология","химия","информатика","математика"];
+const OFFER_WEEK = 1;
+const SCEN_LIST = [DATA.none, DATA.subjects, DATA.vuz];
+const S = {
+  built:false, screen:"chat", turn:0, answers:{}, planId:"none",
+  offer:{olymp:{state:"ask", subject:""}, target:{state:"ask", subject:""}},
+  talk:null, talkStep:"pitch", sheet:null, flash:""
+};
+let INDEX = {};
 
-function plan(){ return PLANS.find(p => p.id === S.planId); }
-function offerOf(){ return OFFER[S.planId] || null; }
-function offerState(){ return S.offer[S.planId]; }
-
-function stopById(id){
-  if (id === "finish") return {kind:"finish", ...FINISH, state:"now"};
-  const offer = offerOf();
-  if (offer && offer.id === id){
-    const st = offerState();
-    return {kind:"offer", id:offer.id, type:offer.type, title: st === "in" ? offer.added : offer.title, text:offer.text, why:offer.why, source:offer.source, price:"", state: st === "in" ? "now" : "offer", offer:true};
+function plan(){ return DATA[S.planId]; }
+function offerKey(){
+  if (S.planId === "subjects") return "olymp";
+  if (S.planId === "vuz") return "target";
+  return "";
+}
+function weekState(w){
+  if (w === 0) return "done";
+  if (w === 1) return "now";
+  if (w < 4) return "open";
+  return "sil";
+}
+function cellSrc(sc, w, i){
+  const pin = sc.pins[w + "-" + i];
+  if (pin) return pin;
+  if (sc.count === 1) return sc.pattern[w % sc.pattern.length];
+  if (sc.id === "subjects") return i < 2 ? sc.prep[(w * 2 + i) % sc.prep.length] : sc.third[w % sc.third.length];
+  return i === 0 ? sc.left[w % sc.left.length] : sc.right[w % sc.right.length];
+}
+function extraCell(sc, w){
+  if (w < OFFER_WEEK + 1 || w >= OFFER_WEEK + 5) return null;
+  if (sc.id === "subjects" && S.offer.olymp.state === "on"){
+    const sub = S.offer.olymp.subject;
+    return {type:"олимпиада", title:"Олимпиада, " + sub, text:"Готовься к школьному этапу по " + (CASE[sub] || sub) + "."};
   }
-  const base = BASE.find(b => b.id === id);
-  if (!base) return null;
-  const over = plan().stops[id] || {};
-  return {kind:"stop", ...base, ...over, task: over.task || null};
+  if (sc.id === "vuz" && S.offer.target.state === "on"){
+    return {type:"документы", title:"Целевой договор", text:"Договор и бумаги ведём мы. Куда идти — выбираешь ты."};
+  }
+  return null;
 }
-
-function marks(done){
-  let html = `<span class="marks" aria-label="${done} из 3">`;
-  for (let i = 0; i < 3; i++) html += `<i class="${i < done ? "on" : ""}"></i>`;
-  return html + "</span>";
-}
-function lockSvg(){
-  return `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 10V8a4 4 0 0 1 8 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>`;
-}
-function crownSvg(){
-  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17 L5 8 L9 13 L12 5 L15 13 L19 8 L21 17 Z" fill="#e0b05a"/></svg>`;
+function weeksOf(sc){
+  const weeks = [];
+  for (let w = 0; w < 12; w++){
+    const row = [];
+    for (let i = 0; i < sc.count; i++){
+      const cell = Object.assign({id:sc.id + "-" + w + "-" + i, week:w}, cellSrc(sc, w, i));
+      INDEX[cell.id] = cell;
+      row.push(cell);
+    }
+    const extra = extraCell(sc, w);
+    if (extra){
+      const cell = Object.assign({id:sc.id + "-" + w + "-x", week:w}, extra);
+      INDEX[cell.id] = cell;
+      row.push(cell);
+    }
+    weeks.push(row);
+  }
+  const mile = Object.assign({id:sc.id + "-mile", kind:"mile"}, sc.mile);
+  INDEX[mile.id] = mile;
+  return {weeks, mile};
 }
 
 function renderBanner(){
@@ -270,114 +330,135 @@ function renderChat(){
     const a = S.answers;
     lines.length = 0;
     lines.push(`<div class="msg me">Сделай мне план, как в вуз поступить.</div>`);
-    lines.push(`<div class="msg me">${esc(a.place || "")}. Не пойду: ${esc(a.cut || "—")}. В день: ${esc(a.mins || "—")}.</div>`);
-    lines.push(`<div class="msg bot">${esc(SCRIPT[3].text)} Дорога уже на экране.</div>`);
+    lines.push(`<div class="msg me">${esc(a.place || "")}. ${esc(a.known || "")}. В день: ${esc(a.mins || "—")}.</div>`);
+    lines.push(`<div class="msg bot">${esc(SCRIPT[3].text)}</div>`);
     extra = `<button type="button" class="go" data-act="tab" data-id="road">К дороге</button>`;
   }
   return `<div class="top"><h1>Помощник</h1></div>${lines.join("")}${extra}`;
 }
 
 function goals(){
-  return `<div class="goals" role="group" aria-label="Планы">${PLANS.map(p => {
+  return `<div class="goals" role="group" aria-label="Сценарии">${SCEN_LIST.map(p => {
     const on = p.id === S.planId ? " on" : "";
-    const un = p.named ? "" : " unnamed";
-    const name = p.named ? p.name : "ещё не назван";
-    return `<button type="button" class="goal${on}${un}" data-act="plan" data-id="${esc(p.id)}"><i>${p.n}</i><b>${esc(name)}</b><span>план ${p.n}</span></button>`;
+    return `<button type="button" class="goal${on}" data-act="plan" data-id="${esc(p.id)}"><i>${p.n}</i><b>${esc(p.name)}</b><span>${esc(p.per)}</span></button>`;
   }).join("")}</div>`;
 }
 
-function taskCard(task, side, id){
-  const color = COLOR[task.type] || "#5b8cff";
-  const note = S.objected[id] ? "Основание спрятано: ты сказал «не так»." : task.text;
-  return `<button type="button" class="task ${side}" style="--c:${color}" data-act="cell" data-id="${esc(id)}">
-    <span class="badge">Задача</span><b>${esc(task.title)}</b><span class="line">${esc(note)}</span>${marks(task.steps)}
-  </button>`;
+function cellFace(c, state){
+  const color = COLOR[c.type] || "#5b8cff";
+  if (state === "sil"){
+    return `<button type="button" class="cell sil" style="--c:${color}" data-act="sil" aria-label="${esc(c.type)}">${ico(c.type)}</button>`;
+  }
+  const cls = state === "now" ? " now" : state === "done" ? " done" : "";
+  const icon = state === "done" ? ico("check") : ico(c.type);
+  const label = state === "done" ? c.title + ", сделано" : c.title;
+  return `<button type="button" class="cell${cls}" style="--c:${color}" data-act="cell" data-id="${esc(c.id)}" aria-label="${esc(label)}">${icon}</button>`;
 }
-function lockCard(side){
-  return `<button type="button" class="task lock ${side}" data-act="fog">${lockSvg()}<span>Скоро откроется</span></button>`;
-}
-function offerCard(side){
-  const offer = offerOf();
-  if (!offer) return "";
-  const st = offerState();
-  const color = COLOR[offer.type];
-  if (st === "out") return `<button type="button" class="back ${side}" data-act="offer-back">Вернуть «${esc(offer.title)}»</button>`;
-  const title = st === "in" ? offer.added : offer.title;
-  const line = st === "in" ? offer.why : offer.text;
-  const ask = st === "ask" ? `<span class="btns"><button type="button" class="btn" data-act="offer-in">Добавить в план</button><button type="button" class="btn ghost" data-act="offer-out">Не сейчас</button></span>` : marks(0);
-  return `<div class="offer ${side}" style="--c:${color}">
-    <button type="button" class="hit" data-act="cell" data-id="${esc(offer.id)}"><span class="badge">${esc(offer.type)}</span><b>${esc(title)}</b><span class="line">${esc(line)}</span></button>${ask}
-  </div>`;
+
+function bubbleHtml(){
+  const key = offerKey();
+  if (!key) return "";
+  const o = S.offer[key];
+  if (o.state === "on"){
+    const title = key === "olymp" ? "Готовимся по " + (CASE[o.subject] || o.subject) : "Смотрим целевой набор";
+    return `<div class="bubble"><b>${esc(title)}</b><button type="button" class="off" data-act="offer-off" data-id="${key}">Убрать</button></div>`;
+  }
+  const label = key === "olymp" ? "Олимпиада?" : "Целевое?";
+  return `<button type="button" class="bubble" data-act="talk" data-id="${key}"><b>${esc(label)}</b></button>`;
 }
 
 function renderRoad(){
-  const p = plan();
-  const rows = BASE.map((base, i) => {
-    const over = p.stops[base.id] || {};
-    const state = over.state || "lock";
-    const nodeSide = i % 2 === 0 ? "left" : "right";
-    const cardSide = nodeSide === "left" ? "right" : "left";
-    const showTask = (state === "now" || state === "done") && over.task;
-    const withOffer = state === "now" && offerOf();
-    const tall = withOffer ? " tall" : "";
-    const task = showTask ? taskCard(over.task, cardSide, base.id) : lockCard(cardSide);
-    const offer = withOffer ? offerCard(cardSide) : "";
-    return `<div class="stop${tall}">
-      <button type="button" class="node ${nodeSide} ${state}" data-act="cell" data-id="${esc(base.id)}">${base.n}</button>
-      <div class="cap ${nodeSide}"><b>${esc(base.title)}</b><span>${esc(base.when)}</span><span>${esc(base.price)}</span></div>
-      ${task}${offer}
-    </div>`;
+  INDEX = {};
+  const sc = plan();
+  const built = weeksOf(sc);
+  const months = ["Месяц 1","Месяц 2","Месяц 3"];
+  let rows = "";
+  built.weeks.forEach((row, w) => {
+    if (w % 4 === 0) rows += `<div class="month">${months[w / 4]}</div>`;
+    const flip = w % 2 === 1 ? " flip" : "";
+    const bubble = w === OFFER_WEEK ? bubbleHtml() : "";
+    rows += `<div class="week"><span class="wn">${w + 1}</span><div class="lane n${row.length}${flip}">${row.map(c => cellFace(c, weekState(w))).join("")}</div>${bubble}</div>`;
+  });
+  const mile = built.mile;
+  const mileHtml = `<div class="week mile"><button type="button" class="cell mile" data-act="cell" data-id="${esc(mile.id)}"><span class="kicker">через 3 месяца</span><b>${esc(mile.title)}</b><span class="sub">${esc(mile.note)}</span></button></div>`;
+  const fog = [0,1].map(r => {
+    const flip = r === 1 ? " flip" : "";
+    const buttons = [0,1].map(() => `<button type="button" class="cell fog" data-act="fog" aria-label="Дальше в тумане"></button>`).join("");
+    return `<div class="week"><span class="wn"></span><div class="lane n2${flip}">${buttons}</div></div>`;
   }).join("");
-  const finSide = BASE.length % 2 === 0 ? "left" : "right";
-  const finish = `<div class="stop finish">
-    <button type="button" class="node ${finSide} now" data-act="cell" data-id="finish" aria-label="Зачисление">${crownSvg()}</button>
-    <div class="cap ${finSide}"><b>Зачисление</b><span>не выбранный вуз</span></div>
-  </div>`;
-  const cut = S.answers.cut && S.answers.cut !== "Пока не отсекаю"
-    ? `<p class="hint">Отсёк: ${esc(S.answers.cut)}. План с этим именем можно открыть, он не выбран за тебя.</p>` : "";
-  const mins = S.answers.mins ? `<p class="hint">В день: ${esc(S.answers.mins)}. Здесь путь, не список на сегодня.</p>` : "";
-  const flash = S.flash ? `<p class="flash">${esc(S.flash)}</p>` : "";
+  const mins = S.answers.mins ? `<p class="hint">В день: ${esc(S.answers.mins)}.</p>` : "";
+  const flash = S.flash ? `<p class="flash">${esc(typo(S.flash))}</p>` : "";
   return `<div class="top"><h1>Роадмап</h1><button type="button" data-act="tab" data-id="chat">Чат</button></div>
-    <p class="hint">${esc(p.lead)}</p>${cut}${mins}${flash}${goals()}
-    <div class="board" id="board"><svg class="road" id="road" aria-hidden="true"></svg>${rows}${finish}</div>`;
+    <p class="hint">${esc(sc.lead)}</p>${mins}${flash}${goals()}
+    <div class="board" id="board"><svg class="road" id="road" aria-hidden="true"></svg>${rows}${mileHtml}<p class="fogcap">Дальше соберём, когда дойдёшь.</p>${fog}</div>`;
 }
 
 function renderPort(){
   const cards = CARDS.map(c => `<article class="card"><b>${esc(c.title)}</b><span>${esc(c.meta)}. ${esc(c.note)}</span></article>`).join("");
-  return `<div class="top"><h1>Портфель</h1></div><p class="hint">Карточки человека, не плана. На подаче идут в комплект. Родителю видны документы и баллы, не чат.</p><div class="cards">${cards}</div>`;
+  return `<div class="top"><h1>Портфель</h1></div><p class="hint">Сюда попадает справка, балл, документ. Галочка их не создаёт.</p><div class="cards">${cards}</div>`;
 }
 function renderDock(){
   const row = CARDS.map(c => `<button type="button" class="mini" data-act="tab" data-id="port"><b>${esc(c.title)}</b><span>${esc(c.meta)}</span></button>`).join("");
   return `<span class="lab">Портфель</span><div class="row">${row}</div>`;
 }
 
-function renderSheet(){
-  const c = stopById(S.sheet);
-  if (!c) return "";
-  const objected = S.objected[c.id];
-  const locked = c.state === "later" || c.state === "lock";
-  const why = objected
-    ? "Основание спрятано: ты сказал «не так». Точку не убрал. Напиши, чем заменить."
-    : (c.task && !locked ? (c.why) : (c.why || "Жёсткая дата. Её не прячем и не убираем."));
-  const text = !locked && c.task ? c.task.text : (c.kind === "offer" || c.kind === "finish" ? c.text : "");
-  const src = c.source && c.source !== "нет" ? `<p class="src">${esc(c.source)}</p>` : "";
-  let actions = "";
-  if (c.offer && offerState() === "ask"){
-    actions = `<div class="btns"><button type="button" class="btn" data-act="offer-in">Добавить в план</button><button type="button" class="btn ghost" data-act="offer-out">Не сейчас</button></div>`;
-  } else if (!objected && c.kind !== "finish"){
-    actions = `<div class="btns"><button type="button" class="btn ghost" data-act="object" data-id="${esc(c.id)}">Не так</button></div>`;
-  }
-  const lock = locked ? `<p class="src">Дату не прячем. Задача откроется, когда дойдёшь.</p>` : "";
+function renderTaskSheet(c){
+  const act = ACT[c.type];
+  const state = c.week === undefined ? "" : weekState(c.week);
+  let foot = "";
+  if (c.kind === "mile") foot = "";
+  else if (state === "done") foot = `<p class="done">Сделано</p>`;
+  else if (act) foot = `<button type="button" class="btn" data-act="do" data-msg="${esc(act.done)}">${esc(act.label)}</button>`;
   return `<div class="sheet" role="dialog" aria-label="${esc(c.title)}">
     <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
     <h2>${esc(c.title)}</h2>
-    ${c.when ? `<p>${esc(c.when)}</p>` : ""}
-    ${text ? `<p>${esc(text)}</p>` : ""}
-    ${c.price ? `<p>${esc(c.price)}</p>` : ""}
-    ${lock}
-    <div class="whybox"><b>Почему это здесь</b><p>${esc(why)}</p>${src}</div>
-    ${actions}
+    ${c.text ? `<p>${esc(c.text)}</p>` : ""}
+    ${foot}
   </div>`;
+}
+
+function renderTalk(){
+  const key = S.talk;
+  const o = S.offer[key];
+  if (!o) return "";
+  if (key === "olymp" && S.talkStep === "pick"){
+    const chips = SUBJECTS.map(s => `<button type="button" class="chip" data-act="subject" data-id="olymp" data-val="${esc(s)}">${esc(s)}</button>`).join("");
+    return `<div class="sheet" role="dialog" aria-label="Предмет олимпиады">
+      <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+      <h2>Какой предмет?</h2>
+      <p>${esc(typo("Выбери сам. По нему встанут четыре недели на поле."))}</p>
+      <div class="chips">${chips}</div>
+    </div>`;
+  }
+  if (key === "olymp"){
+    return `<div class="sheet" role="dialog" aria-label="Олимпиада">
+      <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+      <h2>Олимпиада</h2>
+      <p>${esc(typo("Есть олимпиады. Диплом даёт баллы или снимает конкурс целиком. Так зачисляют 3,6%."))}</p>
+      <p>${esc(typo("Выбрать предмет и начать готовиться?"))}</p>
+      <div class="btns">
+        <button type="button" class="btn" data-act="talk-yes" data-id="olymp">Давай</button>
+        <button type="button" class="btn ghost" data-act="talk-no" data-id="olymp">Не сейчас</button>
+      </div>
+    </div>`;
+  }
+  return `<div class="sheet" role="dialog" aria-label="Целевое">
+    <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+      <h2>Целевое</h2>
+      <p>${esc(typo("Есть целевой набор. Договор и бумаги ведём мы. Куда идти — выбираешь ты. Так зачисляют 6,4%."))}</p>
+      <p>${esc(typo("Посмотреть, где он есть?"))}</p>
+    <div class="btns">
+      <button type="button" class="btn" data-act="talk-yes" data-id="target">Давай</button>
+      <button type="button" class="btn ghost" data-act="talk-no" data-id="target">Не сейчас</button>
+    </div>
+  </div>`;
+}
+
+function renderSheet(){
+  if (S.talk) return renderTalk();
+  const c = INDEX[S.sheet];
+  if (!c) return "";
+  return renderTaskSheet(c);
 }
 
 function renderTabs(){
@@ -390,7 +471,7 @@ function drawRoad(){
   const board = document.getElementById("board");
   const svg = document.getElementById("road");
   if (!board || !svg) return;
-  const nodes = [...board.querySelectorAll(".node")];
+  const nodes = [...board.querySelectorAll(".cell")];
   if (nodes.length < 2) return;
   const br = board.getBoundingClientRect();
   const w = board.clientWidth, h = board.clientHeight;
@@ -405,8 +486,8 @@ function drawRoad(){
     d += ` C ${a.x} ${a.y + dy}, ${b.x} ${b.y - dy}, ${b.x} ${b.y}`;
   }
   svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-  svg.innerHTML = `<path d="${d}" fill="none" stroke="#3a4258" stroke-width="22" stroke-linecap="round"/>
-    <path d="${d}" fill="none" stroke="#8b93a7" stroke-width="2" stroke-dasharray="8 10" stroke-linecap="round"/>`;
+  svg.innerHTML = `<path d="${d}" fill="none" stroke="#3a4258" stroke-width="18" stroke-linecap="round"/>
+    <path d="${d}" fill="none" stroke="#8b93a7" stroke-width="2" stroke-dasharray="7 9" stroke-linecap="round"/>`;
 }
 
 function render(){
@@ -422,13 +503,13 @@ function render(){
   renderBanner();
   const old = phone.querySelector(".sheet");
   if (old) old.remove();
-  if (S.sheet && S.screen === "road") phone.insertAdjacentHTML("beforeend", renderSheet());
-  if (S.screen === "road") requestAnimationFrame(drawRoad);
+  if ((S.sheet || S.talk) && S.screen === "road") phone.insertAdjacentHTML("beforeend", renderSheet());
+  if (S.screen === "road") requestAnimationFrame(() => requestAnimationFrame(drawRoad));
 }
 
 function startPlan(){
-  if (S.answers.cut === "Медицина") return "code";
-  if (S.answers.cut === "Право") return "med";
+  if (S.answers.known === "Направление есть, предметы нет") return "subjects";
+  if (S.answers.known === "Предметы есть, нужен вуз") return "vuz";
   return "none";
 }
 
@@ -439,6 +520,7 @@ document.body.addEventListener("click", e => {
   if (act === "plan"){
     S.planId = el.dataset.id;
     S.sheet = null;
+    S.talk = null;
     S.flash = "";
   } else if (act === "chip"){
     S.answers[el.dataset.key] = el.dataset.val;
@@ -451,28 +533,53 @@ document.body.addEventListener("click", e => {
   } else if (act === "tab"){
     S.screen = el.dataset.id;
     S.sheet = null;
+    S.talk = null;
   } else if (act === "cell"){
     S.sheet = el.dataset.id;
+    S.talk = null;
     S.flash = "";
+  } else if (act === "sil"){
+    S.sheet = null;
+    S.talk = null;
+    S.flash = "Задание откроется на этой неделе.";
   } else if (act === "fog"){
     S.sheet = null;
-    S.flash = "Скоро откроется. Дата на точке и так видна.";
+    S.talk = null;
+    S.flash = "Дальше соберём, когда дойдёшь.";
   } else if (act === "close"){
     S.sheet = null;
-  } else if (act === "object"){
-    S.objected[el.dataset.id] = true;
-    S.flash = "Учёл. Точка на месте, дату не убрал.";
-  } else if (act === "offer-in"){
-    S.offer[S.planId] = "in";
+    S.talk = null;
+  } else if (act === "do"){
     S.sheet = null;
-    S.flash = "Добавил в план. Карточки за это нет: нужен документ.";
-  } else if (act === "offer-out"){
-    S.offer[S.planId] = "out";
+    S.flash = el.dataset.msg;
+  } else if (act === "talk"){
+    S.talk = el.dataset.id;
+    S.talkStep = "pitch";
     S.sheet = null;
-    S.flash = "Убрал. Вернуть можно.";
-  } else if (act === "offer-back"){
-    S.offer[S.planId] = "ask";
     S.flash = "";
+    if (S.offer[S.talk].state === "out") S.offer[S.talk].state = "ask";
+  } else if (act === "talk-yes"){
+    if (el.dataset.id === "olymp") S.talkStep = "pick";
+    else {
+      S.offer.target.state = "on";
+      S.talk = null;
+      S.flash = "Добавил на поле. Четыре недели.";
+    }
+  } else if (act === "talk-no"){
+    S.offer[el.dataset.id].state = "out";
+    S.talk = null;
+    S.flash = "Убрал. Вернуть можно.";
+  } else if (act === "subject"){
+    S.offer.olymp.state = "on";
+    S.offer.olymp.subject = el.dataset.val;
+    S.talk = null;
+    S.flash = "Добавил подготовку по " + (CASE[el.dataset.val] || el.dataset.val) + ". Четыре недели на поле.";
+  } else if (act === "offer-off"){
+    const o = S.offer[el.dataset.id];
+    o.state = "ask";
+    o.subject = "";
+    S.talk = null;
+    S.flash = "Убрал с поля.";
   }
   render();
 });
