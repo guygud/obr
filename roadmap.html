@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Роадмап · помощник</title>
+<meta name="description" content="Помощник раскладывает путь дорогой с точками. Три плана сверху, сроки видны, задачи под замком.">
+<style>
+:root{
+  --bg:#07080c;--phone:#0e1016;--card:#1a1e28;--card-2:#161a24;--line:#2a3040;
+  --text:#f4f6fb;--text-2:#a7adba;--text-3:#7e8696;--blue:#3b74ff;--green:#3ecf8e;
+  --pill:#1a1e28;--pill-on:#3a4154;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:16px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,"Helvetica Neue",Arial,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+button:disabled{cursor:default}
+button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.stage{min-height:100vh;display:flex;align-items:flex-start;justify-content:center;gap:24px;padding:20px 16px 32px}
+.side{width:320px;flex:0 0 320px;position:sticky;top:20px}
+.banner p{margin:0;font-size:13px;line-height:1.4;color:var(--text-3)}
+.phone{position:relative;display:flex;flex-direction:column;width:390px;height:844px;background:var(--phone);border:1px solid #222838;border-radius:32px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+.scroll{flex:1;min-height:0;overflow:auto;padding:14px 0 12px}
+.phone.chat .scroll{padding-bottom:24px}
+.phone.chat .tabs,.phone.chat .dock,.phone.port .dock{display:none}
+.scroll::-webkit-scrollbar{width:0}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:0 16px 4px}
+.top h1{margin:0;font-size:26px;letter-spacing:-.03em;font-weight:720}
+.top button{border:0;background:transparent;color:var(--text-2);font-size:14px;padding:4px}
+.hint{margin:0 16px 8px;color:var(--text-2);font-size:13px}
+.msg{max-width:84%;margin:0 16px 10px;padding:10px 12px;border-radius:16px}
+.msg.me{margin-left:auto;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+.msg.bot{background:var(--card);border-bottom-left-radius:4px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:4px 16px 8px}
+.chip,.go{border:1px solid var(--line);background:#1c2230;border-radius:999px;padding:8px 12px;font-size:14px}
+.go{display:block;margin:8px 16px 0;background:var(--blue);border-color:var(--blue);color:#fff;font-weight:650;text-align:center}
+.goals{display:flex;justify-content:space-between;align-items:flex-start;margin:2px 18px 12px;position:relative}
+.goals::before{content:"";position:absolute;top:22px;left:16%;right:16%;border-top:2px dashed #3a4258}
+.goal{position:relative;z-index:1;width:100px;border:0;background:transparent;color:inherit;text-align:center;padding:0}
+.goal i{width:44px;height:44px;margin:0 auto 4px;border-radius:50%;border:2px solid var(--blue);background:#141824;display:grid;place-items:center;font-style:normal;font-weight:720}
+.goal.on i{background:var(--blue);color:#fff}
+.goal.unnamed i{border-style:dashed;color:var(--text-2)}
+.goal b{display:block;font-size:12px;font-weight:650;line-height:1.2}
+.goal span{display:block;margin-top:1px;font-size:11px;color:var(--text-3)}
+.board{position:relative;margin:0 8px}
+.road{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.stop{position:relative;z-index:1;height:168px}
+.stop.tall{height:320px}
+.stop.finish{height:120px}
+.node{position:absolute;top:42%;z-index:2;width:46px;height:46px;margin:0;padding:0;border-radius:50%;border:2px solid #8b93a7;background:#1a1e28;color:#fff;font-weight:720;transform:translate(-50%,-50%)}
+.node.left{left:22%}
+.node.right{left:72%}
+.node.now{background:var(--blue);border-color:#c5d4ff}
+.node.done{background:#1f6b45;border-color:var(--green)}
+.node.later,.node.lock{background:#12151c;border-style:dashed;color:var(--text-2)}
+.node svg{width:22px;height:22px;display:block;margin:0 auto}
+.cap{position:absolute;z-index:2;top:calc(42% + 28px);width:120px;transform:translateX(-50%);text-align:center;font-size:11px;line-height:1.2;color:var(--text-2)}
+.cap.left{left:22%}
+.cap.right{left:72%}
+.cap b,.cap span{display:block}
+.cap b{color:var(--text);font-size:12px;font-weight:650}
+.task,.offer{position:absolute;z-index:2;top:10px;width:52%;max-width:54%;text-align:left;background:var(--card);border:0;border-radius:14px;padding:8px 10px 10px;color:inherit}
+.task.right,.offer.right{right:4px}
+.task.left,.offer.left{left:4px}
+.task .badge,.offer .badge{display:inline-block;font-size:11px;font-weight:650;color:#0e1016;background:var(--c,#5b8cff);border-radius:999px;padding:2px 8px}
+.task b,.offer b{display:block;margin-top:6px;font-size:14px;line-height:1.25}
+.task .line,.offer .line{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:4px;font-size:12px;color:var(--text-2)}
+.marks{display:flex;gap:4px;margin-top:8px}
+.marks i{width:16px;height:4px;border-radius:2px;background:#343b4d;font-style:normal}
+.marks i.on{background:var(--green)}
+.task.lock{top:24px;display:flex;align-items:center;gap:8px;min-height:64px;background:transparent;color:var(--text-3);border:1px dashed #3a4258;font-size:13px}
+.task.lock svg{flex:0 0 18px;width:18px;height:18px}
+.offer{top:auto;bottom:8px;border:1px dashed var(--c,#e0b05a);background:#16141c;padding:6px 8px 8px}
+.offer .hit{display:block;width:100%;border:0;background:transparent;color:inherit;text-align:left;padding:0}
+.offer .btns{margin-top:8px}
+.back{position:absolute;z-index:2;bottom:8px;border:0;background:transparent;color:var(--text-2);font-size:13px;padding:4px 0}
+.back.right{right:4px}
+.back.left{left:4px}
+.dock{flex:none;display:flex;gap:8px;align-items:center;margin:0 12px 8px;padding:6px 8px;background:#141820;border:1px solid var(--line);border-radius:14px}
+.dock .lab{flex:0 0 auto;font-size:12px;color:var(--text-3);padding:0 4px}
+.dock .row{display:flex;gap:8px;overflow:auto;scrollbar-width:none}
+.dock .row::-webkit-scrollbar{display:none}
+.mini{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:inherit;border-radius:12px;padding:6px 10px;text-align:left}
+.mini b{display:block;font-size:13px}
+.mini span{display:block;font-size:12px;color:var(--text-2)}
+.tabs{flex:none;display:flex;margin:0 12px 12px;background:#161a24;border:1px solid var(--line);border-radius:22px;padding:8px 0 6px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--text-3);font-size:13px;padding:6px}
+.tabs button.on{color:#fff;font-weight:650}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:72%;overflow:auto;background:#141820;border-top:1px solid var(--line);border-radius:20px 20px 0 0;padding:16px 16px 28px;z-index:4}
+.sheet h2{margin:0 40px 6px 0;font-size:22px;letter-spacing:-.02em}
+.sheet .x{position:absolute;top:12px;right:12px;width:32px;height:32px;border:0;border-radius:50%;background:#1c2230}
+.sheet p{margin:0 0 10px;color:var(--text-2);font-size:15px}
+.sheet .src{font-size:13px;color:var(--text-3)}
+.whybox{margin:8px 0 12px;padding:12px;background:var(--card-2);border-radius:12px}
+.whybox b{display:block;margin-bottom:4px;font-size:14px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:0;background:var(--blue);color:#fff;border-radius:999px;padding:8px 12px;font-weight:650;font-size:13px}
+.btn.ghost{background:#2a3142;color:var(--text)}
+.cards{padding:0 16px}
+.card{width:100%;text-align:left;background:var(--card);border:0;border-left:3px solid #aeb6c6;border-radius:16px;padding:14px;margin:0 0 10px;color:inherit}
+.card b{display:block;font-size:16px}
+.card span{display:block;margin-top:4px;color:var(--text-2);font-size:14px}
+.flash{margin:0 16px 8px;font-size:13px;color:var(--text-2)}
+@media (max-width:900px){
+  .stage{flex-direction:column;align-items:center}
+  .side{position:static;width:min(390px,100%)}
+}
+@media (max-width:480px){
+  .stage{padding:0}
+  .banner{width:100%;padding:12px 12px 0}
+  .phone{width:100%;height:100dvh;border:0;border-radius:0}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="side banner" id="banner"></aside>
+  <div class="phone" id="phone">
+    <div class="scroll" id="app"></div>
+    <div class="dock" id="dock"></div>
+    <nav class="tabs" id="tabs"></nav>
+  </div>
+</div>
+<script>
+function typo(s){
+  if (typeof s !== "string") return s;
+  s = s.replaceAll(" — ", "\u00a0— ");
+  for (let i = 0; i < 4; i++){
+    const n = s.replace(/(^|[\s\u00a0(«])([ВвКкСсУуОоАаИиЯя]) /g, (m, a, b) => a + b + "\u00a0");
+    if (n === s) break;
+    s = n;
+  }
+  return s;
+}
+function walk(v){
+  if (typeof v === "string") return typo(v);
+  if (Array.isArray(v)) return v.map(walk);
+  if (v && typeof v === "object"){
+    const o = {};
+    for (const k of Object.keys(v)) o[k] = walk(v[k]);
+    return o;
+  }
+  return v;
+}
+function esc(s){
+  return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+const NOTE = typo("Прототип роадмапа. Три плана сверху переключают дорогу. Точка держит дату, задача сбоку. Под замком даты нет. Карточка в портфеле — от документа. Числа — из доклада ВШЭ.");
+const COLOR = {предметы:"#5b8cff", срок:"#e08a3c", отсев:"#b08cff", разговор:"#3ecf8e", олимпиада:"#e0b05a", документы:"#aeb6c6", целевое:"#e0b05a"};
+
+const BASE = walk([
+  {id:"profile", n:1, title:"Профиль и ОГЭ", when:"весна 9 класса", price:"Предметы закрепят перечень на два года.", why:"Девятый класс фиксирует направления на два года.", source:"Девятый класс, а не старшая школа, стал ключевой точкой выбора высшего образования."},
+  {id:"subjects", n:2, title:"Предметы ЕГЭ", when:"1 февраля", price:"После этой даты состав не пересобрать.", why:"Состав предметов для сессии фиксируется здесь.", source:"ЕГЭ — 62,3% зачислений."},
+  {id:"exam", n:3, title:"Сдача ЕГЭ", when:"даты экзаменов", price:"ЕГЭ — 62,3% зачислений.", why:"Основной канал зачисления, не олимпиада.", source:"90% усилий по подготовке нацелены на ЕГЭ."},
+  {id:"apply", n:4, title:"Подача", when:"июнь–июль", price:"Места теряют на порядке приоритетов.", why:"Порядок в заявлении называешь ты. Мы его не подставляем.", source:"Треть оказывается в вузе, который был запасным."},
+  {id:"yes", n:5, title:"Согласие", when:"срок этого года", price:"Пропуск необратим.", why:"Внутри срока согласие можно отозвать. Это говорим мы.", source:"нет"}
+]);
+
+const CARDS = walk([
+  {id:"oge-doc", title:"Запись на ОГЭ", meta:"Справка школы", note:"Документ школы, не отметка у нас. На подаче ляжет в комплект."},
+  {id:"mock", title:"Математика, 68", meta:"Пробник", note:"Балл из пробника. Ниже прошлого — обычный результат, не провал."}
+]);
+
+const OFFER = {
+  med: walk({id:"olymp", type:"олимпиада", title:"Олимпиада?", text:"Не хочешь на школьный этап? Регистрация в сентябре.", why:"Диплом нужного уровня снимает конкурс на части направлений. Пропуск в этом году не закрывает следующий сентябрь.", source:"Олимпиада — 3,6% зачислений.", added:"Назови предметы школьного этапа"}),
+  code: walk({id:"target", type:"целевое", title:"Целевое?", text:"Не хочешь посмотреть целевой набор? Договор и документы ведём мы.", why:"Это бюрократия, не выбор «кем быть». Куда заключать договор — решаешь ты.", source:"Целевой набор — 6,4% зачислений. Больше, чем олимпиада.", added:"Где есть целевой набор по твоим направлениям"})
+};
+
+const PLANS = walk([
+  {
+    id:"med", n:1, name:"терапевт", named:true,
+    lead:"Биология и химия. Даты те же, что у других планов.",
+    stops:{
+      profile:{state:"now", task:{type:"предметы", title:"Предметы ОГЭ", text:"Биология и химия. У каждого — какое направление он держит.", steps:1}},
+      subjects:{state:"later"},
+      exam:{state:"lock"},
+      apply:{state:"lock"},
+      yes:{state:"lock"}
+    }
+  },
+  {
+    id:"code", n:2, name:"программист", named:true,
+    lead:"Информатика и профильная математика. Даты те же.",
+    stops:{
+      profile:{state:"done", task:{type:"предметы", title:"Профиль назван", text:"Информатика и профильная математика. Перечень на два года зафиксирован.", steps:3}},
+      subjects:{state:"now", task:{type:"предметы", title:"Предметы ЕГЭ", text:"Перечень называешь ты. У каждого предмета — какое направление он держит.", steps:1}},
+      exam:{state:"later"},
+      apply:{state:"lock"},
+      yes:{state:"lock"}
+    }
+  },
+  {
+    id:"none", n:3, name:"", named:false,
+    lead:"План не назван. Сначала отсев, не профессия.",
+    stops:{
+      profile:{state:"now", task:{type:"отсев", title:"Куда точно не пойдёшь", text:"Напиши направление и причину своими словами. Профессию за тебя не называем.", steps:0}},
+      subjects:{state:"lock"},
+      exam:{state:"lock"},
+      apply:{state:"lock"},
+      yes:{state:"lock"}
+    }
+  }
+]);
+
+const FINISH = walk({id:"finish", title:"Зачисление", text:"Конечная ценность — зачисление, а не выбранный вуз.", why:"Доводим до заявления, приоритетов, списков и согласия. Гарантию результата не даём.", source:"нет"});
+
+const SCRIPT = walk([
+  {text:"Соберу дорогу. То, что кажется брожением, у консультанта уже разложено.", key:"place", q:"Какой класс и регион?", chips:["9 класс, Москва"]},
+  {text:"Куда точно не пойдёшь? Отсечь проще, чем выбрать.", key:"cut", q:"", chips:["Медицина","Право","Пока не отсекаю"]},
+  {text:"Сколько минут в день готов заниматься? Это объём, не характер.", key:"mins", q:"", chips:["15 минут","30 минут","Час"]},
+  {text:"Дорога готова. Сверху три плана: два названных и один пустой. Даты на точках видны сразу. Задачи дальше — под замком.", go:true}
+]);
+
+const S = {built:false, screen:"chat", turn:0, answers:{}, planId:"med", offer:{med:"ask", code:"ask", none:"out"}, objected:{}, sheet:null, flash:""};
+
+function plan(){ return PLANS.find(p => p.id === S.planId); }
+function offerOf(){ return OFFER[S.planId] || null; }
+function offerState(){ return S.offer[S.planId]; }
+
+function stopById(id){
+  if (id === "finish") return {kind:"finish", ...FINISH, state:"now"};
+  const offer = offerOf();
+  if (offer && offer.id === id){
+    const st = offerState();
+    return {kind:"offer", id:offer.id, type:offer.type, title: st === "in" ? offer.added : offer.title, text:offer.text, why:offer.why, source:offer.source, price:"", state: st === "in" ? "now" : "offer", offer:true};
+  }
+  const base = BASE.find(b => b.id === id);
+  if (!base) return null;
+  const over = plan().stops[id] || {};
+  return {kind:"stop", ...base, ...over, task: over.task || null};
+}
+
+function marks(done){
+  let html = `<span class="marks" aria-label="${done} из 3">`;
+  for (let i = 0; i < 3; i++) html += `<i class="${i < done ? "on" : ""}"></i>`;
+  return html + "</span>";
+}
+function lockSvg(){
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 10V8a4 4 0 0 1 8 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>`;
+}
+function crownSvg(){
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17 L5 8 L9 13 L12 5 L15 13 L19 8 L21 17 Z" fill="#e0b05a"/></svg>`;
+}
+
+function renderBanner(){
+  document.getElementById("banner").innerHTML = `<p>${esc(NOTE)}</p>`;
+}
+
+function renderChat(){
+  const lines = [`<div class="msg me">Сделай мне план, как в вуз поступить.</div>`];
+  const n = Math.min(S.turn, SCRIPT.length - 1);
+  for (let i = 0; i <= n; i++){
+    const step = SCRIPT[i];
+    if (i < S.turn && S.answers[step.key]){
+      lines.push(`<div class="msg bot">${esc(step.text)}</div>`);
+      lines.push(`<div class="msg me">${esc(S.answers[step.key])}</div>`);
+    } else if (i === S.turn){
+      lines.push(`<div class="msg bot">${esc(step.text)}${step.q ? " " + esc(step.q) : ""}</div>`);
+    }
+  }
+  let extra = "";
+  if (!S.built){
+    const step = SCRIPT[S.turn];
+    extra = step.go
+      ? `<button type="button" class="go" data-act="build">Показать дорогу</button>`
+      : `<div class="chips">${step.chips.map(c => `<button type="button" class="chip" data-act="chip" data-key="${esc(step.key)}" data-val="${esc(c)}">${esc(c)}</button>`).join("")}</div>`;
+  } else {
+    const a = S.answers;
+    lines.length = 0;
+    lines.push(`<div class="msg me">Сделай мне план, как в вуз поступить.</div>`);
+    lines.push(`<div class="msg me">${esc(a.place || "")}. Не пойду: ${esc(a.cut || "—")}. В день: ${esc(a.mins || "—")}.</div>`);
+    lines.push(`<div class="msg bot">${esc(SCRIPT[3].text)} Дорога уже на экране.</div>`);
+    extra = `<button type="button" class="go" data-act="tab" data-id="road">К дороге</button>`;
+  }
+  return `<div class="top"><h1>Помощник</h1></div>${lines.join("")}${extra}`;
+}
+
+function goals(){
+  return `<div class="goals" role="group" aria-label="Планы">${PLANS.map(p => {
+    const on = p.id === S.planId ? " on" : "";
+    const un = p.named ? "" : " unnamed";
+    const name = p.named ? p.name : "ещё не назван";
+    return `<button type="button" class="goal${on}${un}" data-act="plan" data-id="${esc(p.id)}"><i>${p.n}</i><b>${esc(name)}</b><span>план ${p.n}</span></button>`;
+  }).join("")}</div>`;
+}
+
+function taskCard(task, side, id){
+  const color = COLOR[task.type] || "#5b8cff";
+  const note = S.objected[id] ? "Основание спрятано: ты сказал «не так»." : task.text;
+  return `<button type="button" class="task ${side}" style="--c:${color}" data-act="cell" data-id="${esc(id)}">
+    <span class="badge">Задача</span><b>${esc(task.title)}</b><span class="line">${esc(note)}</span>${marks(task.steps)}
+  </button>`;
+}
+function lockCard(side){
+  return `<button type="button" class="task lock ${side}" data-act="fog">${lockSvg()}<span>Скоро откроется</span></button>`;
+}
+function offerCard(side){
+  const offer = offerOf();
+  if (!offer) return "";
+  const st = offerState();
+  const color = COLOR[offer.type];
+  if (st === "out") return `<button type="button" class="back ${side}" data-act="offer-back">Вернуть «${esc(offer.title)}»</button>`;
+  const title = st === "in" ? offer.added : offer.title;
+  const line = st === "in" ? offer.why : offer.text;
+  const ask = st === "ask" ? `<span class="btns"><button type="button" class="btn" data-act="offer-in">Добавить в план</button><button type="button" class="btn ghost" data-act="offer-out">Не сейчас</button></span>` : marks(0);
+  return `<div class="offer ${side}" style="--c:${color}">
+    <button type="button" class="hit" data-act="cell" data-id="${esc(offer.id)}"><span class="badge">${esc(offer.type)}</span><b>${esc(title)}</b><span class="line">${esc(line)}</span></button>${ask}
+  </div>`;
+}
+
+function renderRoad(){
+  const p = plan();
+  const rows = BASE.map((base, i) => {
+    const over = p.stops[base.id] || {};
+    const state = over.state || "lock";
+    const nodeSide = i % 2 === 0 ? "left" : "right";
+    const cardSide = nodeSide === "left" ? "right" : "left";
+    const showTask = (state === "now" || state === "done") && over.task;
+    const withOffer = state === "now" && offerOf();
+    const tall = withOffer ? " tall" : "";
+    const task = showTask ? taskCard(over.task, cardSide, base.id) : lockCard(cardSide);
+    const offer = withOffer ? offerCard(cardSide) : "";
+    return `<div class="stop${tall}">
+      <button type="button" class="node ${nodeSide} ${state}" data-act="cell" data-id="${esc(base.id)}">${base.n}</button>
+      <div class="cap ${nodeSide}"><b>${esc(base.title)}</b><span>${esc(base.when)}</span><span>${esc(base.price)}</span></div>
+      ${task}${offer}
+    </div>`;
+  }).join("");
+  const finSide = BASE.length % 2 === 0 ? "left" : "right";
+  const finish = `<div class="stop finish">
+    <button type="button" class="node ${finSide} now" data-act="cell" data-id="finish" aria-label="Зачисление">${crownSvg()}</button>
+    <div class="cap ${finSide}"><b>Зачисление</b><span>не выбранный вуз</span></div>
+  </div>`;
+  const cut = S.answers.cut && S.answers.cut !== "Пока не отсекаю"
+    ? `<p class="hint">Отсёк: ${esc(S.answers.cut)}. План с этим именем можно открыть, он не выбран за тебя.</p>` : "";
+  const mins = S.answers.mins ? `<p class="hint">В день: ${esc(S.answers.mins)}. Здесь путь, не список на сегодня.</p>` : "";
+  const flash = S.flash ? `<p class="flash">${esc(S.flash)}</p>` : "";
+  return `<div class="top"><h1>Роадмап</h1><button type="button" data-act="tab" data-id="chat">Чат</button></div>
+    <p class="hint">${esc(p.lead)}</p>${cut}${mins}${flash}${goals()}
+    <div class="board" id="board"><svg class="road" id="road" aria-hidden="true"></svg>${rows}${finish}</div>`;
+}
+
+function renderPort(){
+  const cards = CARDS.map(c => `<article class="card"><b>${esc(c.title)}</b><span>${esc(c.meta)}. ${esc(c.note)}</span></article>`).join("");
+  return `<div class="top"><h1>Портфель</h1></div><p class="hint">Карточки человека, не плана. На подаче идут в комплект. Родителю видны документы и баллы, не чат.</p><div class="cards">${cards}</div>`;
+}
+function renderDock(){
+  const row = CARDS.map(c => `<button type="button" class="mini" data-act="tab" data-id="port"><b>${esc(c.title)}</b><span>${esc(c.meta)}</span></button>`).join("");
+  return `<span class="lab">Портфель</span><div class="row">${row}</div>`;
+}
+
+function renderSheet(){
+  const c = stopById(S.sheet);
+  if (!c) return "";
+  const objected = S.objected[c.id];
+  const locked = c.state === "later" || c.state === "lock";
+  const why = objected
+    ? "Основание спрятано: ты сказал «не так». Точку не убрал. Напиши, чем заменить."
+    : (c.task && !locked ? (c.why) : (c.why || "Жёсткая дата. Её не прячем и не убираем."));
+  const text = !locked && c.task ? c.task.text : (c.kind === "offer" || c.kind === "finish" ? c.text : "");
+  const src = c.source && c.source !== "нет" ? `<p class="src">${esc(c.source)}</p>` : "";
+  let actions = "";
+  if (c.offer && offerState() === "ask"){
+    actions = `<div class="btns"><button type="button" class="btn" data-act="offer-in">Добавить в план</button><button type="button" class="btn ghost" data-act="offer-out">Не сейчас</button></div>`;
+  } else if (!objected && c.kind !== "finish"){
+    actions = `<div class="btns"><button type="button" class="btn ghost" data-act="object" data-id="${esc(c.id)}">Не так</button></div>`;
+  }
+  const lock = locked ? `<p class="src">Дату не прячем. Задача откроется, когда дойдёшь.</p>` : "";
+  return `<div class="sheet" role="dialog" aria-label="${esc(c.title)}">
+    <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+    <h2>${esc(c.title)}</h2>
+    ${c.when ? `<p>${esc(c.when)}</p>` : ""}
+    ${text ? `<p>${esc(text)}</p>` : ""}
+    ${c.price ? `<p>${esc(c.price)}</p>` : ""}
+    ${lock}
+    <div class="whybox"><b>Почему это здесь</b><p>${esc(why)}</p>${src}</div>
+    ${actions}
+  </div>`;
+}
+
+function renderTabs(){
+  const items = [["road","Роадмап"],["port","Портфель"]];
+  document.getElementById("tabs").innerHTML = items.map(([id, label]) =>
+    `<button type="button" data-act="tab" data-id="${id}" class="${S.screen === id ? "on" : ""}">${label}</button>`).join("");
+}
+
+function drawRoad(){
+  const board = document.getElementById("board");
+  const svg = document.getElementById("road");
+  if (!board || !svg) return;
+  const nodes = [...board.querySelectorAll(".node")];
+  if (nodes.length < 2) return;
+  const br = board.getBoundingClientRect();
+  const w = board.clientWidth, h = board.clientHeight;
+  const pts = nodes.map(n => {
+    const r = n.getBoundingClientRect();
+    return {x: r.left + r.width / 2 - br.left, y: r.top + r.height / 2 - br.top};
+  });
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++){
+    const a = pts[i - 1], b = pts[i];
+    const dy = (b.y - a.y) * 0.55;
+    d += ` C ${a.x} ${a.y + dy}, ${b.x} ${b.y - dy}, ${b.x} ${b.y}`;
+  }
+  svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  svg.innerHTML = `<path d="${d}" fill="none" stroke="#3a4258" stroke-width="22" stroke-linecap="round"/>
+    <path d="${d}" fill="none" stroke="#8b93a7" stroke-width="2" stroke-dasharray="8 10" stroke-linecap="round"/>`;
+}
+
+function render(){
+  const phone = document.getElementById("phone");
+  phone.classList.toggle("chat", S.screen === "chat");
+  phone.classList.toggle("port", S.screen === "port");
+  const app = document.getElementById("app");
+  if (S.screen === "chat") app.innerHTML = renderChat();
+  else if (S.screen === "port") app.innerHTML = renderPort();
+  else app.innerHTML = renderRoad();
+  document.getElementById("dock").innerHTML = renderDock();
+  renderTabs();
+  renderBanner();
+  const old = phone.querySelector(".sheet");
+  if (old) old.remove();
+  if (S.sheet && S.screen === "road") phone.insertAdjacentHTML("beforeend", renderSheet());
+  if (S.screen === "road") requestAnimationFrame(drawRoad);
+}
+
+function startPlan(){
+  if (S.answers.cut === "Медицина") return "code";
+  if (S.answers.cut === "Право") return "med";
+  return "none";
+}
+
+document.body.addEventListener("click", e => {
+  const el = e.target.closest("[data-act]");
+  if (!el) return;
+  const act = el.dataset.act;
+  if (act === "plan"){
+    S.planId = el.dataset.id;
+    S.sheet = null;
+    S.flash = "";
+  } else if (act === "chip"){
+    S.answers[el.dataset.key] = el.dataset.val;
+    S.turn = Math.min(S.turn + 1, SCRIPT.length - 1);
+  } else if (act === "build"){
+    S.built = true;
+    S.planId = startPlan();
+    S.screen = "road";
+    S.flash = "";
+  } else if (act === "tab"){
+    S.screen = el.dataset.id;
+    S.sheet = null;
+  } else if (act === "cell"){
+    S.sheet = el.dataset.id;
+    S.flash = "";
+  } else if (act === "fog"){
+    S.sheet = null;
+    S.flash = "Скоро откроется. Дата на точке и так видна.";
+  } else if (act === "close"){
+    S.sheet = null;
+  } else if (act === "object"){
+    S.objected[el.dataset.id] = true;
+    S.flash = "Учёл. Точка на месте, дату не убрал.";
+  } else if (act === "offer-in"){
+    S.offer[S.planId] = "in";
+    S.sheet = null;
+    S.flash = "Добавил в план. Карточки за это нет: нужен документ.";
+  } else if (act === "offer-out"){
+    S.offer[S.planId] = "out";
+    S.sheet = null;
+    S.flash = "Убрал. Вернуть можно.";
+  } else if (act === "offer-back"){
+    S.offer[S.planId] = "ask";
+    S.flash = "";
+  }
+  render();
+});
+
+window.addEventListener("resize", () => { if (S.screen === "road") drawRoad(); });
+render();
+</script>
+</body>
+</html>
