@@ -40,12 +40,12 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .road{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 .segrow{position:relative;z-index:1;display:flex;align-items:flex-start;gap:6px;padding:2px 4px 2px 0}
 .weeks{flex:1;min-width:0}
-.week{display:flex;align-items:center;gap:6px;min-height:64px}
-.wn{flex:0 0 16px;font-size:11px;color:var(--text-3);text-align:right}
-.lane{flex:1;display:flex;align-items:center;justify-content:space-evenly;min-height:52px;min-width:0}
-.lane.flip{flex-direction:row-reverse}
-.lane.n1{justify-content:flex-start;padding-left:16px}
-.lane.n1.flip{justify-content:flex-end;padding-left:0;padding-right:16px}
+.week{display:flex;align-items:flex-start;gap:8px;min-height:64px}
+.wn{flex:0 0 52px;text-align:right;font-size:11px;line-height:1.15;color:var(--text-3);padding-top:8px}
+.wn b{display:block;font-size:15px;font-weight:720;color:var(--text-2);letter-spacing:-.02em}
+.wn span{display:block}
+.wn button{display:block;margin:2px 0 0 auto;border:0;background:transparent;padding:0;font-size:11px;font-weight:650;color:#e0b05a}
+.lane{flex:1;display:flex;flex-wrap:wrap;align-items:center;align-content:flex-start;justify-content:flex-start;gap:14px;min-height:52px;min-width:0;padding:4px 0 8px 6px}
 .seglab{margin:8px 0 0 22px;font-size:12px;color:var(--text-3)}
 .emptycap{margin:0 0 6px 22px;font-size:12px;color:var(--text-3)}
 .cell{position:relative;z-index:2;flex:0 0 48px;width:48px;height:48px;padding:0;border-radius:14px;border:2px solid var(--c,#5b8cff);background:#12151c;color:var(--c);display:grid;place-items:center}
@@ -80,6 +80,9 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .sheet h2{margin:0 40px 8px 0;font-size:22px;letter-spacing:-.02em}
 .sheet .x{position:absolute;top:12px;right:12px;width:32px;height:32px;border:0;border-radius:50%;background:#1c2230}
 .sheet p{margin:0 0 12px;color:var(--text-2);font-size:15px}
+.sheet .msg{max-width:88%;margin:0 0 8px;padding:10px 12px;border-radius:16px;font-size:15px;line-height:1.35}
+.sheet .msg.bot{background:#1c2230;color:var(--text);border-bottom-left-radius:4px}
+.sheet .msg.me{margin-left:auto;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
 .btn{border:0;background:var(--blue);color:#fff;border-radius:999px;padding:8px 14px;font-weight:650;font-size:14px}
 .btn.ghost{background:#2a3142;color:var(--text)}
@@ -88,14 +91,44 @@ button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 .card b{display:block;font-size:16px}
 .card span{display:block;margin-top:4px;color:var(--text-2);font-size:14px}
 .flash{margin:0 16px 8px;font-size:13px;color:var(--text-2)}
+.feathers{font-size:13px;font-weight:650;color:#e0b05a}
+.fogband{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;margin:4px 12px 4px 22px;min-height:150px;padding:12px 12px 14px;border-radius:16px;background:linear-gradient(180deg, rgba(14,16,22,0) 0%, rgba(22,28,44,.78) 48%, rgba(14,16,22,.92) 100%)}
+.fogband p{margin:0;font-size:13px;color:var(--text-3)}
+.fogband button{align-self:flex-start;border:0;background:transparent;padding:0;font-size:13px;color:var(--text-2);text-decoration:underline;text-underline-offset:3px}
+.coach{position:absolute;left:16px;right:16px;z-index:6;background:#1a1e28;border:1px solid var(--blue);border-radius:16px;padding:12px 14px 14px;box-shadow:0 12px 40px rgba(0,0,0,.45);animation:coachin .2s ease both}
+.coach p{margin:0 28px 10px 0;font-size:15px;line-height:1.35}
+.coach .x{position:absolute;top:8px;right:8px;width:28px;height:28px;border:0;border-radius:50%;background:#1c2230}
+.coach::before{content:"";position:absolute;left:var(--ax,28px);top:-7px;width:12px;height:12px;background:#1a1e28;border-left:1px solid var(--blue);border-top:1px solid var(--blue);transform:translateX(-50%) rotate(45deg)}
+.coach.above::before{top:auto;bottom:-7px;border:0;border-right:1px solid var(--blue);border-bottom:1px solid var(--blue)}
+@keyframes coachin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cell.done{border-color:var(--green)}
+.tick{position:absolute;right:-5px;bottom:-5px;width:16px;height:16px;border-radius:50%;background:var(--green);color:#062116;display:grid;place-items:center}
+.tick svg{width:11px;height:11px}
+.choice{display:block;width:100%;margin:0 0 8px;border:1px solid var(--line);background:#1c2230;border-radius:14px;padding:12px 14px;text-align:left;font-size:15px;line-height:1.3}
+.sheet input{display:block;width:100%;margin:0 0 8px;border:1px solid var(--line);background:#1c2230;color:inherit;border-radius:12px;padding:10px 12px;font:inherit}
+.sheet .err{margin:0 0 8px;color:#e06c9a;font-size:13px}
+.storyline{margin:0;color:#e0b05a;font-weight:650}
+.phone.start #app{display:flex;flex-direction:column;overflow:hidden}
+.phone.start .board{flex:1;display:flex;flex-direction:column;min-height:0}
+.phone.start .fogband{flex:1 1 auto;min-height:120px}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.cell.pop{animation:rise .18s ease both;animation-delay:calc(var(--d) * 40ms)}
+@keyframes fogback{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+.fogband.retreat{animation:fogback .45s ease both}
+@media (prefers-reduced-motion:reduce){
+  .cell.pop,.fogband.retreat,.coach{animation:none}
+}
 @media (max-width:900px){
-  .stage{flex-direction:column;align-items:center}
-  .side{position:static;width:min(390px,100%)}
+  html,body{height:100%}
+  body{overflow:hidden}
+  .stage{height:100dvh;min-height:0;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;padding:12px 0 0;overflow:hidden}
+  .side{position:static;width:min(390px,100%);flex:0 1 auto;padding:0 16px}
+  .phone{width:min(390px,100%);height:auto;flex:1 1 auto;min-height:0;border-radius:28px 28px 0 0}
 }
 @media (max-width:480px){
-  .stage{padding:0}
-  .banner{width:100%;padding:12px 12px 0}
-  .phone{width:100%;height:100dvh;border:0;border-radius:0}
+  .stage{gap:0;padding:0}
+  .side{width:100%;padding:10px 16px 4px}
+  .phone{width:100%;border:0;border-radius:0;box-shadow:none}
 }
 </style>
 </head>
@@ -133,7 +166,7 @@ function esc(s){
   return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 }
 
-const NOTE = typo("Карта сразу показывает всю цель: от профессии до поступления. Дел на ней нет, пока не согласишься в разговоре сбоку. Три сценария сверху ставят человека в разные места одной карты.");
+const NOTE = typo("Сначала одно дело: построить план. Дальше туман, в конце поступление. Дела появляются после ответа и ложатся на недели.");
 
 const COLOR = {
   подготовка:"#5b8cff", лента:"#4ec9e0", профилирование:"#8b7cf0", проба:"#3ecf8e",
@@ -176,8 +209,8 @@ const MILES = walk([
 
 const OFFERS = walk([
   {id:"job", q:"Помочь выбрать профессию?", on:"Смотрим направления", pick:false,
-    text:"Помогу посмотреть направления. Профессию за тебя не назову. Чаще выбирают направление, не вуз: 52% и 22%. Четыре недели, по одному делу.",
-    weeks:4, per:1, pool:[
+    text:"Помогу посмотреть направления. Профессию за тебя не назову. Чаще выбирают направление, не вуз: 52% и 22%. Две недели, по два дела.",
+    weeks:2, per:2, pool:[
       {type:"лента", title:"Три ролика", text:"Посмотри три коротких ролика про разные направления. Запиши, что не твоё."},
       {type:"профилирование", title:"Тест", text:"Пройди тест. Запиши своими словами, что не твоё и что пока оставляешь."},
       {type:"проба", title:"Обычный день", text:"Посмотри, как проходит рабочий день. Напиши: оставить или нет, и почему."},
@@ -212,9 +245,10 @@ const OFFERS = walk([
       {type:"подготовка", title:"Пробник ещё раз", text:"Второй пробник. Сравним с первым."}
     ]},
   {id:"olymp", q:"Олимпиада?", on:"Олимпиада", pick:true,
-    text:"Есть олимпиады. Диплом даёт баллы или снимает конкурс целиком. Так зачисляют 3,6%. Четыре недели.",
-    weeks:4, per:1, pool:[
-      {type:"олимпиада", title:"Школьный этап", text:"Готовься к школьному этапу. Предмет выбрал ты."}
+    text:"Есть олимпиады. Диплом даёт баллы или снимает конкурс целиком. Так зачисляют 3,6%. Две недели, по два дела.",
+    weeks:2, per:2, pool:[
+      {type:"олимпиада", title:"Школьный этап", text:"Готовься к школьному этапу. Предмет выбрал ты."},
+      {type:"олимпиада", title:"Прошлый год", text:"Реши задания прошлого года. Предмет выбрал ты."}
     ]},
   {id:"ege", q:"Записать на ЕГЭ?", on:"Запись на ЕГЭ", pick:false,
     text:"Заявление подают до 1 февраля. После этой даты предметы не поменять. Две недели, по два дела.",
@@ -237,8 +271,8 @@ const OFFERS = walk([
       {type:"документы", title:"Ещё бумага", text:"Следующая бумага из комплекта."}
     ]},
   {id:"target", q:"Целевое?", on:"Целевой набор", pick:false,
-    text:"Есть целевой набор. Договор и бумаги ведём мы. Куда идти — выбираешь ты. Так зачисляют 6,4%. Четыре недели.",
-    weeks:4, per:1, pool:[
+    text:"Есть целевой набор. Договор и бумаги ведём мы. Куда идти — выбираешь ты. Так зачисляют 6,4%. Две недели, по два дела.",
+    weeks:2, per:2, pool:[
       {type:"документы", title:"Где есть набор", text:"Открой, где есть целевой набор по твоим предметам."},
       {type:"документы", title:"Условия договора", text:"Прочитай условия. Куда идти — выбираешь ты."},
       {type:"документы", title:"Черновик", text:"Собери черновик договора. Подписывать за тебя не будем."},
@@ -253,8 +287,8 @@ const OFFERS = walk([
       {type:"документы", title:"Платное здесь", text:"Посчитай платное место в этом вузе. Выбор за тобой."}
     ]},
   {id:"watch", q:"Следить за списками?", on:"Следим за списками", pick:false,
-    text:"Напомню срок согласия. Подать его можешь только ты. Две недели.",
-    weeks:2, per:1, pool:[
+    text:"Напомню срок согласия. Подать его можешь только ты. Одна неделя, два дела.",
+    weeks:1, per:2, pool:[
       {type:"документы", title:"Твоя строка", text:"Посмотри своё место в конкурсном списке."},
       {type:"документы", title:"Срок согласия", text:"Запиши срок. Пропустить его нельзя, внутри срока согласие можно отозвать."}
     ]}
@@ -263,8 +297,8 @@ const OFFER = {};
 OFFERS.forEach(b => { OFFER[b.id] = b; });
 
 const SEGMENTS = [
-  {id:1, offers:["job","subj"]},
-  {id:2, offers:["prep","olymp"]},
+  {id:1, offers:["job"]},
+  {id:2, offers:["subj","prep","olymp"]},
   {id:3, offers:["ege"]},
   {id:4, offers:["vuzlist","target"]},
   {id:5, offers:["prio"]},
@@ -272,10 +306,16 @@ const SEGMENTS = [
 ];
 
 const SCEN = walk([
-  {id:"none", n:1, name:"не знаю предметы", place:"в начале", lead:"Ты в начале. Цель видна, дел пока нет.", at:1, passed:[], filled:[]},
-  {id:"subjects", n:2, name:"выбираю предметы", place:"подготовка", lead:"Профессия выбрана. Дальше — подготовка к экзаменам.", at:2, passed:[1], filled:["prep"]},
-  {id:"vuz", n:3, name:"выбираю вуз", place:"документы", lead:"Экзамены сданы. Дальше — документы.", at:4, passed:[1,2,3], filled:[]}
+  {id:"none", at:1, passed:[], filled:["job"], lead:"Начинаем с направления."},
+  {id:"field", at:2, passed:[1], filled:["subj"], lead:"Область есть. Дальше предметы."}
 ]);
+const FACT = walk({
+  2:"Закроется баллом пробника: 250.",
+  3:"Закроется баллами из официальных результатов.",
+  4:"Закроется комплектом бумаг по каждому вузу.",
+  5:"Закроется заявлением на Госуслугах.",
+  6:"Закроется согласием, поданным в срок."
+});
 
 const CARDS = walk([
   {id:"oge-doc", title:"Запись на ОГЭ", meta:"Справка школы", note:"Справка из школы. Галочка её не заменяет."},
@@ -304,22 +344,110 @@ const EGE_ALT = walk({
 const CITIES = ["Москва","Санкт-Петербург","Казань","Новосибирск"];
 const PLACE_OFFERS = {ege:1, vuzlist:1, target:1};
 
-const S = {screen:"road", planId:"none", offer:{}, place:null, draftGrade:"", talk:null, talkStep:"pitch", sheet:null, flash:""};
-let INDEX = {};
+const HELP = walk({
+  job:{
+    q:"Хочешь, разберу, что ты уже вычеркнул?",
+    text:"Покажу, что осталось открытым. Профессию за тебя не назову.",
+    yes:"Разобрать",
+    done:"Разобрал вычеркнутое. Направление назовёшь ты."
+  },
+  subj:{
+    q:"Хочешь, я разберу твои оценки и помогу с выбором?",
+    text:"Сверю оценки с предметами, которые ты уже назвал. Предмет за тебя не выберу.",
+    yes:"Разобрать",
+    done:"Оценки разобрал. Что оставить — решаешь ты."
+  },
+  prep:{
+    q:"Пробник уже написан? Подгрузи балл.",
+    text:"Балл возьмём из пробника. Ниже прошлого — просто балл.",
+    yes:"Подгрузить",
+    done:"Балл в портфеле.",
+    card:{id:"prep-score", title:"Пробник", meta:"Твой балл", note:"Балл из пробника. Галочка его не заменяет."}
+  },
+  olymp:{
+    q:"Уже сдал олимпиаду? Давай подгрузим грамоту.",
+    text:"Грамота — документ. Галочка в приложении её не заменяет.",
+    yes:"Подгрузить",
+    done:"Грамота в портфеле.",
+    card:{id:"olymp-dip", title:"Грамота олимпиады", meta:"Диплом", note:"Документ с олимпиады. Галочка его не заменяет."}
+  },
+  ege:{
+    q:"Школа уже подтвердила запись? Подгрузи справку.",
+    text:"Справка из школы закрывает запись. Галочка её не заменяет.",
+    yes:"Подгрузить",
+    done:"Справка в портфеле.",
+    card:{id:"ege-doc", title:"Запись на ЕГЭ", meta:"Справка школы", note:"Подтверждение школы. Галочка его не заменяет."}
+  },
+  vuzlist:{
+    q:"Хочешь, сверю сроки по твоему списку?",
+    text:"Посмотрю даты по вузам из твоего списка. Куда подавать — решаешь ты.",
+    yes:"Сверить",
+    done:"Сроки сверил. Список остаётся твоим."
+  },
+  target:{
+    q:"Договор уже есть? Подгрузим.",
+    text:"Договор ведём мы. Куда идти — выбираешь ты.",
+    yes:"Подгрузить",
+    done:"Договор в портфеле.",
+    card:{id:"target-doc", title:"Целевой договор", meta:"Договор", note:"Договор целевого набора. Подписываешь ты."}
+  },
+  prio:{
+    q:"Хочешь, покажу, какой вуз станет запасным?",
+    text:"Посчитаю по твоему порядку. Треть оказывается в запасном вузе. Порядок называешь ты.",
+    yes:"Посчитать",
+    done:"Посчитал по твоему порядку. Менять его или нет — решаешь ты."
+  },
+  watch:{
+    q:"Список обновился? Сверю твою строку.",
+    text:"Посмотрю место в конкурсном списке. Согласие подаёшь только ты.",
+    yes:"Сверить",
+    done:"Строку сверил. Согласие подаёшь только ты."
+  }
+});
 
-function plan(){ return SCEN.find(p => p.id === S.planId); }
-function mileState(n){
+const S = {screen:"road", planId:"", offer:{}, place:null, draftGrade:"", talk:null, talkStep:"pitch", sheet:null, flash:"", direction:"", dirStep:"ask", dirError:"", done:{}, feathers:0, told:{}, seen:{}, onboarded:false, fogRetreat:false, helped:{}};
+let INDEX = {};
+let popN = 0;
+const newborn = [];
+
+function plan(){ return SCEN.find(p => p.id === S.planId) || null; }
+function view(){
   const p = plan();
+  if (!p) return null;
+  const passed = p.passed.slice();
+  let at = p.at;
+  let lead = p.lead;
+  if (S.direction && !passed.includes(1)){
+    passed.push(1);
+    if (at < 2) at = 2;
+    if (p.at === 1) lead = "Направление названо. Дальше предметы.";
+  }
+  return {id:p.id, at:at, passed:passed, filled:p.filled, lead:lead};
+}
+function mileState(n){
+  const p = view();
+  if (!p) return "later";
   if (p.passed.includes(n)) return "passed";
   if (n === p.at) return "now";
   return "later";
+}
+function featherWord(n){
+  const a = n % 10, b = n % 100;
+  if (a === 1 && b !== 11) return n + " пёрышко";
+  if (a >= 2 && a <= 4 && (b < 12 || b > 14)) return n + " пёрышка";
+  return n + " пёрышек";
+}
+function featherHtml(){
+  if (!S.feathers) return "";
+  return `<span class="feathers">${esc(featherWord(S.feathers))}</span>`;
 }
 function modeOf(id){
   const o = S.offer[id];
   if (o && o.state === "out") return "out";
   if (o && o.state === "on") return "on";
   if (o && o.state === "ask") return "ask";
-  if (plan().filled.includes(id)) return "on";
+  const p = plan();
+  if (p && p.filled.includes(id)) return "on";
   return "ask";
 }
 function subjectOf(id){
@@ -347,49 +475,85 @@ function egeFlash(){
 
 function renderBanner(){ document.getElementById("banner").innerHTML = `<p>${esc(NOTE)}</p>`; }
 
-function goals(){
-  return `<div class="goals" role="group" aria-label="Сценарии">${SCEN.map(p => {
-    const on = p.id === S.planId ? " on" : "";
-    return `<button type="button" class="goal${on}" data-act="plan" data-id="${esc(p.id)}"><i>${p.n}</i><b>${esc(p.name)}</b><span>${esc(p.place)}</span></button>`;
-  }).join("")}</div>`;
+function offerShape(b){
+  const alt = b.id === "ege" ? egeAlt() : null;
+  return {
+    weeks: alt ? alt.weeks : b.weeks,
+    per: alt ? alt.per : b.per,
+    pool: alt ? alt.pool : b.pool,
+    label: onLabel(b)
+  };
 }
-
+function weekTasks(b, w){
+  const sh = offerShape(b);
+  const tasks = [];
+  for (let i = 0; i < sh.per; i++){
+    const src = sh.pool[(w * sh.per + i) % sh.pool.length];
+    const cell = Object.assign({id:b.id + "-" + w + "-" + i, week:w}, src);
+    if (b.id === "olymp" && subjectOf(b.id)){
+      const sub = subjectOf(b.id);
+      cell.title = cell.title + ", " + sub;
+      cell.text = "Готовься по " + (CASE[sub] || sub) + ". Предмет выбрал ты.";
+    }
+    tasks.push(cell);
+  }
+  return tasks;
+}
 function taskCell(c){
   const color = COLOR[c.type] || "#5b8cff";
   INDEX[c.id] = c;
-  return `<button type="button" class="cell" style="--c:${color}" data-act="cell" data-id="${esc(c.id)}" aria-label="${esc(c.title)}">${ico(c.type)}</button>`;
+  const fresh = !S.seen[c.id];
+  if (fresh) newborn.push(c.id);
+  const cls = "cell" + (S.done[c.id] ? " done" : "") + (fresh ? " pop" : "");
+  const style = "--c:" + color + (fresh ? ";--d:" + (popN++) : "");
+  const tick = S.done[c.id] ? `<i class="tick" aria-hidden="true">${ico("check")}</i>` : "";
+  return `<button type="button" class="${cls}" style="${style}" data-act="cell" data-id="${esc(c.id)}" aria-label="${esc(c.title)}">${ico(c.type)}${tick}</button>`;
 }
-function weeksHtml(b){
-  const alt = b.id === "ege" ? egeAlt() : null;
-  const weeks = alt ? alt.weeks : b.weeks;
-  const per = alt ? alt.per : b.per;
-  const pool = alt ? alt.pool : b.pool;
-  let html = `<p class="seglab">${esc(onLabel(b))}</p>`;
-  for (let w = 0; w < weeks; w++){
-    const flip = w % 2 === 1 ? " flip" : "";
-    let tiles = "";
-    for (let i = 0; i < per; i++){
-      const src = pool[(w * per + i) % pool.length];
-      const cell = Object.assign({id:b.id + "-" + w + "-" + i, week:w}, src);
-      if (b.id === "olymp" && subjectOf(b.id)){
-        const sub = subjectOf(b.id);
-        cell.title = "Олимпиада, " + sub;
-        cell.text = "Готовься к школьному этапу по " + (CASE[sub] || sub) + ".";
-      }
-      tiles += taskCell(cell);
-    }
-    html += `<div class="week"><span class="wn">${w + 1}</span><div class="lane n${per}${flip}">${tiles}</div></div>`;
+function onOffers(){
+  const p = view();
+  if (!p) return [];
+  const seg = SEGMENTS.find(s => s.id === p.at);
+  return seg.offers.filter(id => modeOf(id) === "on").map(id => OFFER[id]);
+}
+function mergedWeeks(offers){
+  const n = offers.reduce((m, b) => Math.max(m, offerShape(b).weeks), 0);
+  const weeks = [];
+  for (let w = 0; w < n; w++){
+    const tasks = [];
+    offers.forEach(b => {
+      if (w < offerShape(b).weeks) tasks.push(...weekTasks(b, w));
+    });
+    weeks.push(tasks);
   }
+  return weeks;
+}
+let spotted = false;
+function weeksHtml(){
+  const offers = onOffers();
+  const weeks = mergedWeeks(offers);
+  if (!weeks.length) return `<p class="emptycap">Дел пока нет</p>`;
+  const labels = offers.map(b => offerShape(b).label).join(" · ");
+  let html = `<p class="seglab">${esc(labels)}</p>`;
+  weeks.forEach((tasks, w) => {
+    const closed = tasks.every(t => S.done[t.id]);
+    const key = "w-" + w;
+    const spot = S.sheet === "onboard" && !spotted;
+    if (spot) spotted = true;
+    const story = closed ? `<button type="button" data-act="story" data-id="${esc(key)}">Смотреть</button>` : "";
+    html += `<div class="week${spot ? " spot" : ""}"><div class="wn"><b>${w + 1}</b><span>${closed ? "готова" : "неделя"}</span>${story}</div><div class="lane">${tasks.map(taskCell).join("")}</div></div>`;
+  });
   return html;
 }
 function emptyHtml(){
-  return `<div class="week"><span class="wn"></span><div class="lane n2"><button type="button" class="cell empty" data-act="empty" aria-label="Пусто"></button><button type="button" class="cell empty" data-act="empty" aria-label="Пусто"></button></div></div><p class="emptycap">Дел пока нет</p>`;
+  return `<div class="week"><span class="wn"></span><div class="lane"><button type="button" class="cell empty" data-act="empty" aria-label="Пусто"></button><button type="button" class="cell empty" data-act="empty" aria-label="Пусто"></button></div></div><p class="emptycap">Дел пока нет</p>`;
 }
 function bubbleHtml(id){
   const b = OFFER[id];
   const mode = modeOf(id);
   if (mode === "on"){
-    return `<div class="bubble"><b>${esc(onLabel(b))}</b><button type="button" class="off" data-act="offer-off" data-id="${esc(id)}">Убрать</button></div>`;
+    const h = HELP[id];
+    if (!h || S.helped[id]) return "";
+    return `<button type="button" class="bubble" data-act="help" data-id="${esc(id)}"><b>${esc(h.q)}</b></button>`;
   }
   if (mode === "out"){
     return `<button type="button" class="bubble back" data-act="offer-back" data-id="${esc(id)}">Вернуть</button>`;
@@ -403,25 +567,41 @@ function mileHtml(m){
   return `<div class="milewrap"><button type="button" class="cell mile ${state}" data-act="mile" data-id="${m.n}"><span class="kicker">${kicker}</span><b>${esc(m.title)}</b><span class="sub">${esc(m.proof)}</span></button></div>`;
 }
 
+function fogHtml(start){
+  const cls = "fogband" + (S.fogRetreat ? " retreat" : "");
+  S.fogRetreat = false;
+  const line = start ? "Дальше пока не видно" : "Дальше в тумане";
+  return `<div class="${cls}"><p>${line}</p><button type="button" data-act="ahead">Что дальше</button></div>`;
+}
+function renderStart(){
+  INDEX = {};
+  return `<div class="top"><h1>Роадмап</h1>${featherHtml()}</div>
+    <div class="board" id="board"><svg class="road" id="road" aria-hidden="true"></svg>
+      <div class="milewrap"><button type="button" class="cell mile now" data-act="build-open"><span class="kicker">сейчас</span><b>Построить план</b><span class="sub">Отсюда появятся дела</span></button></div>
+      ${fogHtml(true)}
+      ${mileHtml(MILES[5])}
+    </div>`;
+}
 function renderRoad(){
   INDEX = {};
-  const p = plan();
-  let body = "";
-  SEGMENTS.forEach(seg => {
-    const mile = MILES[seg.id - 1];
-    if (seg.id >= p.at){
-      const ons = seg.offers.filter(id => modeOf(id) === "on");
-      const weeks = ons.length ? ons.map(id => weeksHtml(OFFER[id])).join("") : emptyHtml();
-      const bubbles = seg.offers.map(bubbleHtml).join("");
-      body += `<div class="segrow"><div class="weeks">${weeks}</div><div class="bubbles">${bubbles}</div></div>`;
-    }
-    body += mileHtml(mile);
-  });
+  popN = 0;
+  spotted = false;
+  if (!plan()) return renderStart();
+  const p = view();
+  const seg = SEGMENTS.find(s => s.id === p.at);
+  const weeks = weeksHtml();
+  const bubbles = seg.offers.map(bubbleHtml).join("");
+  const enrolled = p.at < 6 ? mileHtml(MILES[5]) : "";
   const placeLine = S.place ? `<p class="hint">${esc(S.place.grade)} класс, ${esc(S.place.city)}.</p>` : "";
   const flash = S.flash ? `<p class="flash">${esc(typo(S.flash))}</p>` : "";
-  return `<div class="top"><h1>Роадмап</h1></div>
-    <p class="hint">${esc(p.lead)}</p>${placeLine}${flash}${goals()}
-    <div class="board" id="board"><svg class="road" id="road" aria-hidden="true"></svg>${body}</div>`;
+  return `<div class="top"><h1>Роадмап</h1>${featherHtml()}</div>
+    <p class="hint">${esc(p.lead)}</p>${placeLine}${flash}
+    <div class="board" id="board"><svg class="road" id="road" aria-hidden="true"></svg>
+      <div class="segrow"><div class="weeks">${weeks}</div><div class="bubbles">${bubbles}</div></div>
+      ${mileHtml(MILES[p.at - 1])}
+      ${p.at < 6 ? fogHtml(false) : ""}
+      ${enrolled}
+    </div>`;
 }
 
 function renderPort(){
@@ -435,7 +615,9 @@ function renderDock(){
 
 function renderTaskSheet(c){
   const act = ACT[c.type];
-  const foot = act ? `<button type="button" class="btn" data-act="do" data-msg="${esc(act.done)}">${esc(act.label)}</button>` : "";
+  const foot = S.done[c.id]
+    ? `<p>Сделано.</p>`
+    : (act ? `<button type="button" class="btn" data-act="do" data-msg="${esc(act.done)}">${esc(act.label)}</button>` : "");
   return `<div class="sheet" role="dialog" aria-label="${esc(c.title)}">
     <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
     <h2>${esc(c.title)}</h2>
@@ -445,12 +627,89 @@ function renderTaskSheet(c){
 }
 function renderMileSheet(m){
   const state = mileState(m.n);
-  const extra = state === "passed" ? `<p>Пройдено.</p>` : "";
+  let body = `<p>${esc(m.proof)}</p>`;
+  if (m.n === 1 && state === "now"){
+    const ask = `<div class="msg bot">${esc(typo("Готов выбрать?"))}</div>`;
+    if (S.dirStep !== "answer"){
+      body = `${ask}<div class="btns"><button type="button" class="btn" data-act="dir-yes">Да</button><button type="button" class="btn ghost" data-act="dir-no">Не сейчас</button></div>`;
+    } else {
+      const err = S.dirError ? `<p class="err">${esc(typo(S.dirError))}</p>` : "";
+      body = `${ask}<div class="msg me">Да</div><div class="msg bot">${esc(typo("Напиши своими словами. Профессию за тебя не назовём."))}</div>
+        <input id="dir" type="text" maxlength="80" autocomplete="off" placeholder="Своими словами">
+        ${err}
+        <button type="button" class="btn" data-act="save-dir">Ответить</button>`;
+    }
+  } else if (state === "passed"){
+    body += S.direction && m.n === 1 ? `<p>${esc(S.direction)}</p>` : "";
+    body += `<p>Пройдено.</p>`;
+  } else if (FACT[m.n]){
+    body += `<p>${esc(FACT[m.n])}</p>`;
+  }
   return `<div class="sheet" role="dialog" aria-label="${esc(m.title)}">
     <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
     <h2>${esc(m.title)}</h2>
-    <p>${esc(m.proof)}</p>
-    ${extra}
+    ${body}
+  </div>`;
+}
+function renderBuild(){
+  return `<div class="sheet" role="dialog" aria-label="Построить план">
+    <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+    <h2>Построить план</h2>
+    <p>${esc(typo("Два ответа. От него зависит, какие дела появятся."))}</p>
+    <button type="button" class="choice" data-act="pick-plan" data-id="none">Пока не знаю, помоги определиться</button>
+    <button type="button" class="choice" data-act="pick-plan" data-id="field">Область знаю, предметы нет</button>
+  </div>`;
+}
+function renderOnboard(){
+  return `<div class="coach" role="dialog" aria-label="Как идти по карте">
+    <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+    <p>${esc(typo("Выполняй задания и двигайся к цели."))}</p>
+    <button type="button" class="btn" data-act="onboard-ok">Понятно</button>
+  </div>`;
+}
+function placeCoach(){
+  const phone = document.getElementById("phone");
+  const coach = phone && phone.querySelector(".coach");
+  const cell = phone && phone.querySelector(".week.spot .cell");
+  if (!coach || !cell) return;
+  const scroller = document.getElementById("app");
+  const pr0 = phone.getBoundingClientRect();
+  const cr0 = cell.getBoundingClientRect();
+  if (cr0.top < pr0.top + 48 || cr0.bottom > pr0.bottom - 80) scroller.scrollTop += cr0.top - pr0.top - 88;
+  const pr = phone.getBoundingClientRect();
+  const cr = cell.getBoundingClientRect();
+  const coachH = coach.offsetHeight;
+  let top = cr.bottom - pr.top + 16;
+  let above = false;
+  if (top + coachH > pr.height - 8){
+    top = cr.top - pr.top - coachH - 16;
+    above = true;
+  }
+  coach.style.top = Math.max(8, top) + "px";
+  coach.classList.toggle("above", above);
+  const ax = cr.left + cr.width / 2 - pr.left - 16;
+  const max = coach.clientWidth - 18;
+  coach.style.setProperty("--ax", Math.max(18, Math.min(max, ax)) + "px");
+}
+function renderAhead(){
+  const p = view();
+  const rest = MILES.filter(m => !p || m.n > p.at);
+  const items = rest.map(m => `<p><b>${esc(m.title)}</b> ${esc(m.proof)}</p>`).join("");
+  return `<div class="sheet" role="dialog" aria-label="Что дальше">
+    <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+    <h2>Что дальше</h2>
+    ${items}
+  </div>`;
+}
+function renderStory(key){
+  const w = Number(String(key).split("-").pop());
+  const tasks = mergedWeeks(onOffers())[w] || [];
+  const names = tasks.map(t => t.title).join(", ");
+  return `<div class="sheet" role="dialog" aria-label="Неделя ${w + 1}">
+    <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+    <h2>Неделя ${w + 1}</h2>
+    <p>${esc(typo("За эту неделю: " + names + "."))}</p>
+    <p class="storyline">+3 пёрышка</p>
   </div>`;
 }
 function askSheet(title, text, chipsHtml){
@@ -494,12 +753,30 @@ function renderTalk(){
 function renderSheet(){
   if (S.talk) return renderTalk();
   if (!S.sheet) return "";
+  if (S.sheet === "build") return renderBuild();
+  if (S.sheet === "onboard") return renderOnboard();
+  if (S.sheet === "ahead") return renderAhead();
+  if (String(S.sheet).startsWith("story-")) return renderStory(String(S.sheet).slice(6));
   if (String(S.sheet).startsWith("mile-")) return renderMileSheet(INDEX[S.sheet]);
+  if (String(S.sheet).startsWith("help-")) return renderHelp(String(S.sheet).slice(5));
   const c = INDEX[S.sheet];
   if (!c) return "";
   return renderTaskSheet(c);
 }
 
+function renderHelp(id){
+  const h = HELP[id];
+  if (!h) return "";
+  return `<div class="sheet" role="dialog" aria-label="${esc(h.q)}">
+    <button type="button" class="x" data-act="close" aria-label="Закрыть">×</button>
+    <h2>${esc(h.q)}</h2>
+    <p>${esc(h.text)}</p>
+    <div class="btns">
+      <button type="button" class="btn" data-act="help-yes" data-id="${esc(id)}">${esc(h.yes)}</button>
+      <button type="button" class="btn ghost" data-act="help-no">Не сейчас</button>
+    </div>
+  </div>`;
+}
 function renderTabs(){
   const items = [["road","Роадмап"],["port","Портфель"]];
   document.getElementById("tabs").innerHTML = items.map(([id, label]) =>
@@ -532,16 +809,18 @@ function drawRoad(){
 function render(){
   const phone = document.getElementById("phone");
   phone.classList.toggle("port", S.screen === "port");
+  phone.classList.toggle("start", S.screen === "road" && !plan());
   const app = document.getElementById("app");
+  newborn.length = 0;
   if (S.screen === "port") app.innerHTML = renderPort();
   else app.innerHTML = renderRoad();
+  newborn.forEach(id => { S.seen[id] = true; });
   document.getElementById("dock").innerHTML = renderDock();
   renderTabs();
   renderBanner();
-  const old = phone.querySelector(".sheet");
-  if (old) old.remove();
+  phone.querySelectorAll(".sheet,.coach").forEach(n => n.remove());
   if ((S.sheet || S.talk) && S.screen === "road") phone.insertAdjacentHTML("beforeend", renderSheet());
-  if (S.screen === "road") requestAnimationFrame(() => requestAnimationFrame(drawRoad));
+  if (S.screen === "road") requestAnimationFrame(() => requestAnimationFrame(() => { drawRoad(); placeCoach(); }));
 }
 
 function turnOn(id){
@@ -554,11 +833,47 @@ document.body.addEventListener("click", e => {
   const el = e.target.closest("[data-act]");
   if (!el) return;
   const act = el.dataset.act;
-  if (act === "plan"){
+  if (S.sheet === "onboard" && act !== "onboard-ok" && act !== "close") S.onboarded = true;
+  if (act === "build-open"){
+    S.sheet = "build";
+    S.talk = null;
+  } else if (act === "pick-plan"){
     S.planId = el.dataset.id;
-    S.sheet = null;
     S.talk = null;
     S.flash = "";
+    S.sheet = S.onboarded ? null : "onboard";
+  } else if (act === "onboard-ok"){
+    S.onboarded = true;
+    S.sheet = null;
+  } else if (act === "ahead"){
+    S.sheet = "ahead";
+    S.talk = null;
+  } else if (act === "story"){
+    const key = el.dataset.id;
+    if (!S.told[key]){
+      S.told[key] = true;
+      S.feathers += 3;
+    }
+    S.sheet = "story-" + key;
+    S.talk = null;
+  } else if (act === "dir-yes"){
+    S.dirStep = "answer";
+    S.dirError = "";
+  } else if (act === "dir-no"){
+    S.dirStep = "ask";
+    S.sheet = null;
+  } else if (act === "save-dir"){
+    const input = document.getElementById("dir");
+    const v = input ? input.value.trim() : "";
+    if (!v) S.dirError = "Напиши направление своими словами.";
+    else {
+      S.direction = v;
+      S.dirError = "";
+      S.dirStep = "ask";
+      S.fogRetreat = true;
+      S.sheet = null;
+      S.flash = "Записал: " + v + ".";
+    }
   } else if (act === "tab"){
     S.screen = el.dataset.id;
     S.sheet = null;
@@ -571,17 +886,21 @@ document.body.addEventListener("click", e => {
     S.sheet = "mile-" + el.dataset.id;
     S.talk = null;
     S.flash = "";
+    if (el.dataset.id === "1") S.dirStep = "ask";
   } else if (act === "empty"){
     S.sheet = null;
     S.talk = null;
     S.flash = "Дел пока нет. Спроси помощника сбоку.";
   } else if (act === "close"){
+    if (S.sheet === "onboard") S.onboarded = true;
     S.sheet = null;
     S.talk = null;
     S.draftGrade = "";
+    S.dirStep = "ask";
   } else if (act === "do"){
-    S.sheet = null;
+    if (S.sheet) S.done[S.sheet] = true;
     S.flash = el.dataset.msg;
+    S.sheet = null;
   } else if (act === "talk"){
     S.talk = el.dataset.id;
     S.talkStep = "pitch";
@@ -610,6 +929,18 @@ document.body.addEventListener("click", e => {
     S.offer[el.dataset.id] = {state:"on", subject:el.dataset.val};
     S.talk = null;
     S.flash = "Добавил на карту по " + (CASE[el.dataset.val] || el.dataset.val) + ".";
+  } else if (act === "help"){
+    S.sheet = "help-" + el.dataset.id;
+    S.talk = null;
+    S.flash = "";
+  } else if (act === "help-yes"){
+    const h = HELP[el.dataset.id];
+    if (h && h.card && !CARDS.some(c => c.id === h.card.id)) CARDS.push(h.card);
+    S.helped[el.dataset.id] = true;
+    S.sheet = null;
+    S.flash = h ? h.done : "";
+  } else if (act === "help-no"){
+    S.sheet = null;
   } else if (act === "offer-off"){
     S.offer[el.dataset.id] = {state:"ask", subject:""};
     S.talk = null;
